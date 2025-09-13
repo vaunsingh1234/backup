@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Safety - Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Authentication specific styles */
+        .auth-container {
+            max-width: 428px;
+            margin: 0 auto;
+            background: url('assets/loginbackground.png') center/cover no-repeat;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+        
+        .auth-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+        
+        
+        .auth-header {
+            padding: 80px 32px 50px;
+            text-align: center;
+            background: transparent;
+            color: #ffffff;
+            position: relative;
+            z-index: 3;
+        }
+        
+        .auth-logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
+            border-radius: 24px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            backdrop-filter: blur(15px);
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .auth-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.5px;
+        }
+        
+        .auth-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .auth-content {
+            padding: 50px 32px;
+            background: transparent;
+            position: relative;
+            z-index: 3;
+        }
+        
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            background: transparent;
+            color: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: rgba(239, 68, 68, 0.6);
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 18px 24px;
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .auth-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .auth-btn:hover::before {
+            left: 100%;
+        }
+        
+        .auth-btn:active {
+            transform: translateY(-1px);
+            transition: transform 0.1s;
+        }
+        
+        .auth-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .auth-divider {
+            text-align: center;
+            margin: 32px 0;
+            position: relative;
+        }
+        
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e5e7eb;
+        }
+        
+        .auth-divider span {
+            background: rgba(255,255,255,0.9);
+            padding: 0 16px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .auth-switch {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .auth-switch button {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .feature-list {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .feature-text {
+            flex: 1;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #111827;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .feature-desc {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        
+        .checkbox-input {
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+        
+        .checkbox-label {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.5;
+        }
+        
+        .checkbox-label a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .btn-loading .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Clean button container styling */
+        .auth-buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span class="time">9:41</span>
+            </div>
+            <div class="status-right">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-logo">
+                <img src="assets/logo-mark.jpeg" alt="Bon Voyage" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: none;">
+            </div>
+            <h1 class="auth-title">Bon Voyage</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="auth-content">
+            <!-- Welcome Screen -->
+            <div class="form-container active" id="welcomeScreen">
+                <div class="auth-buttons-container">
+                    <button class="auth-btn" onclick="showLogin()">
+                        <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+                        Login to Your Account
+                    </button>
+                    <button class="auth-btn" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);" onclick="showSignup()">
+                        <i class="fas fa-user-plus" style="margin-right: 8px;"></i>
+                        Register as Tourist
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <div class="form-container" id="loginScreen">
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email or Tourist ID</label>
+                        <input type="text" class="form-input" id="loginEmail" placeholder="Enter your email or Tourist ID" required>
+                        <div class="error-message" id="loginEmailError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                        <div class="error-message" id="loginPasswordError"></div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" class="checkbox-input" id="rememberMe">
+                        <label class="checkbox-label" for="rememberMe">
+                            Keep me logged in for 30 days
+                        </label>
+                    </div>
+
+                    <button type="submit" class="auth-btn" id="loginBtn">
+                        <span class="btn-text">Login Securely</span>
+                        <i class="fas fa-spinner loading"></i>
+                    </button>
+
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+
+                    <button type="button" class="auth-btn" style="background: #dc2626;" onclick="emergencyLogin()">
+                        <i class="fas fa-phone" style="margin-right: 8px;"></i>
+                        Emergency Access
+                    </button>
+                </form>
+
+                <div class="auth-switch">
+                    Don't have an account? 
+                    <button onclick="showSignup()">Register here</button>
+                </div>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="form-container" id="signupScreen">
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" id="signupName" placeholder="Enter your full name" required>
+                        <div class="error-message" id="signupNameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="signupEmail" placeholder="Enter your email" required>
+                        <div class="error-message" id="signupEmailError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-input" id="signupPhone" placeholder="+91 98765 43210" required>
+                        <div class="error-message" id="signupPhoneError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Identity Document</label>
+                        <select class="form-select" id="signupIdType" required>
+                            <option value="">Choose document type</option>
+                            <option value="aadhaar">Aadhaar Card</option>
+                            <option value="passport">Passport</option>
+                            <option value="dl">Driving License</option>
+                            <option value="voter">Voter ID</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Document Number</label>
+                        <input type="text" class="form-input" id="signupIdNumber" placeholder="Enter document number" required>
+                        <div class="error-message" id="signupIdError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Visit Duration</label>
+                        <select class="form-select" id="visitDuration" required>
+                            <option value="">Select duration</option>
+                            <option value="1-3">1-3 days</option>
+                            <option value="4-7">4-7 days</option>
+                            <option value="1-2weeks">1-2 weeks</option>
+                            <option value="1month">1 month</option>
+                            <option value="extended">Extended stay</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="signupPassword" placeholder="Create a secure password" required>
+                        <div class="error-message" id="signupPasswordError"></div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" class="checkbox-input" id="agreeTerms" required>
+                        <label class="checkbox-label" for="agreeTerms">
+                            I agree to real-time location tracking for safety purposes and accept the 
+                            <a href="#" onclick="showTerms()">Terms & Conditions</a>
+                        </label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" class="checkbox-input" id="emergencyConsent">
+                        <label class="checkbox-label" for="emergencyConsent">
+                            Allow emergency services to access my location and medical information in case of emergency
+                        </label>
+                    </div>
+
+                    <button type="submit" class="auth-btn" id="signupBtn">
+                        <span class="btn-text">Create Digital Tourist ID</span>
+                        <i class="fas fa-spinner loading"></i>
+                    </button>
+                </form>
+
+                <div class="auth-switch">
+                    Already have an account? 
+                    <button onclick="showLogin()">Login here</button>
+                </div>
+            </div>
+
+            <!-- Back Button (shown on login/signup screens) -->
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="showWelcome()" style="background: none; border: none; color: #6b7280; font-size: 14px; cursor: pointer;" id="backBtn">
+                    <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+                    Back to Welcome
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+</body>
+</html>

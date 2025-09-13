@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Admin - Bon Voyage</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .db-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            background: #f9f9f9;
+        }
+        .db-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .db-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .postgres { background: #336791; }
+        .mongodb { background: #47A248; }
+        .redis { background: #DC382D; }
+        .status {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.connected { background: #d4edda; color: #155724; }
+        .status.disconnected { background: #f8d7da; color: #721c24; }
+        .command-box {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn:hover { background: #2980b9; }
+        .btn.success { background: #27ae60; }
+        .btn.danger { background: #e74c3c; }
+        .data-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .table th {
+            background: #f2f2f2;
+            font-weight: bold;
+        }
+        .terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗄️ Database Admin Panel - Bon Voyage</h1>
+        
+        <!-- Quick Status Overview -->
+        <div class="db-section">
+            <div class="db-title">
+                <div class="db-icon" style="background: #9b59b6;">📊</div>
+                System Overview
+            </div>
+            <div class="status" id="system-status">Checking system status...</div>
+            <button class="btn" onclick="checkAllConnections()">🔄 Refresh All</button>
+            <button class="btn success" onclick="exportDatabaseInfo()">📤 Export Info</button>
+            <div class="data-display" id="system-data"></div>
+        </div>
+
+        <!-- PostgreSQL Section -->
+        <div class="db-section">
+            <div class="db-title">
+                <div class="db-icon postgres">P</div>
+                PostgreSQL Database
+            </div>
+            <div class="status" id="postgres-status">Checking connection...</div>
+            <div class="command-box">
+                <strong>Connection Info:</strong><br>
+                Host: localhost:5433<br>
+                Database: tourist_safety_db<br>
+                User: postgres<br>
+                Password: password123<br><br>
+                <strong>Docker Command:</strong><br>
+                docker exec -it bon-voyage-postgres-dev psql -U postgres -d tourist_safety_db
+            </div>
+            <button class="btn" onclick="testPostgresConnection()">🔗 Test Connection</button>
+            <button class="btn success" onclick="getPostgresTables()">📋 List Tables</button>
+            <button class="btn" onclick="getPostgresStats()">📈 Database Stats</button>
+            <button class="btn success" onclick="getPostgresUsers()">👥 View Users</button>
+            <button class="btn success" onclick="getPostgresGeofences()">🚫 View Geo-fences</button>
+            <button class="btn success" onclick="getPostgresViolations()">⚠️ View Violations</button>
+            <button class="btn success" onclick="getPostgresIncidents()">📋 View Incidents</button>
+            <button class="btn success" onclick="getPostgresEmergencies()">🚨 View Emergencies</button>
+            <button class="btn success" onclick="getPostgresEvidence()">📁 View Evidence</button>
+            <button class="btn success" onclick="getPostgresPolice()">👮 View Police Officers</button>
+            <div class="data-display" id="postgres-data"></div>
+        </div>
+
+        <!-- MongoDB Section -->
+        <div class="db-section">
+            <div class="db-title">
+                <div class="db-icon mongodb">M</div>
+                MongoDB Database
+            </div>
+            <div class="status" id="mongodb-status">Checking connection...</div>
+            <div class="command-box">
+                <strong>Connection Info:</strong><br>
+                Host: localhost:27018<br>
+                Database: tourist_safety_mongo<br>
+                User: admin<br>
+                Password: password123<br><br>
+                <strong>Docker Command:</strong><br>
+                docker exec -it bon-voyage-mongo-dev mongosh -u admin -p password123
+            </div>
+            <button class="btn" onclick="testMongoConnection()">🔗 Test Connection</button>
+            <button class="btn success" onclick="getMongoCollections()">📋 List Collections</button>
+            <button class="btn" onclick="getMongoStats()">📈 Database Stats</button>
+            <button class="btn success" onclick="getMongoUsers()">👥 View Users</button>
+            <div class="data-display" id="mongodb-data"></div>
+        </div>
+
+        <!-- Redis Section -->
+        <div class="db-section">
+            <div class="db-title">
+                <div class="db-icon redis">R</div>
+                Redis Cache
+            </div>
+            <div class="status" id="redis-status">Checking connection...</div>
+            <div class="command-box">
+                <strong>Connection Info:</strong><br>
+                Host: localhost:6380<br>
+                Password: password123<br><br>
+                <strong>Docker Command:</strong><br>
+                docker exec -it bon-voyage-redis-dev redis-cli -a password123
+            </div>
+            <button class="btn" onclick="testRedisConnection()">🔗 Test Connection</button>
+            <button class="btn success" onclick="getRedisKeys()">🔑 List Keys</button>
+            <button class="btn" onclick="getRedisInfo()">ℹ️ Redis Info</button>
+            <button class="btn danger" onclick="clearRedisCache()">🗑️ Clear Cache</button>
+            <div class="data-display" id="redis-data"></div>
+        </div>
+
+        <!-- API Health Check -->
+        <div class="db-section">
+            <div class="db-title">
+                <div class="db-icon" style="background: #e67e22;">API</div>
+                API Health Check
+            </div>
+            <div class="status" id="api-status">Checking API...</div>
+            <button class="btn" onclick="checkAPIHealth()">🏥 Check Health</button>
+            <button class="btn" onclick="testAllEndpoints()">🧪 Test Endpoints</button>
+            <div class="data-display" id="api-data"></div>
+        </div>
+
+        <!-- Database Operations -->
+        <div class="db-section">
+            <div class="db-title">
+                <div class="db-icon" style="background: #8e44ad;">⚙️</div>
+                Database Operations
+            </div>
+            <button class="btn success" onclick="backupDatabases()">💾 Backup All</button>
+            <button class="btn" onclick="restoreDatabases()">📥 Restore</button>
+            <button class="btn" onclick="optimizeDatabases()">⚡ Optimize</button>
+            <button class="btn danger" onclick="resetDatabases()">🔄 Reset All</button>
+            <div class="data-display" id="operations-data"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let systemStatus = {
+            postgres: false,
+            mongodb: false,
+            redis: false,
+            api: false
+        };
+
+        // Test PostgreSQL Connection
+        async function testPostgresConnection() {
+            const status = document.getElementById('postgres-status');
+            const data = document.getElementById('postgres-data');
+            
+            status.innerHTML = '<span class="loading"></span> Testing PostgreSQL connection...';
+            status.className = 'status';
+            
+            try {
+                const response = await fetch('/api/db/postgres/status');
+                if (response.ok) {
+                    const result = await response.json();
+                    status.textContent = '✅ PostgreSQL: Connected';
+                    status.className = 'status connected';
+                    systemStatus.postgres = true;
+                    data.innerHTML = `
+                        <h4>PostgreSQL Status:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                } else {
+                    throw new Error('PostgreSQL endpoint not available');
+                }
+            } catch (error) {
+                status.textContent = '❌ PostgreSQL: Connection failed';
+                status.className = 'status disconnected';
+                systemStatus.postgres = false;
+                data.innerHTML = `
+                    <p>Error: ${error.message}</p>
+                    <p><strong>Manual Connection:</strong></p>
+                    <div class="terminal">docker exec -it bon-voyage-postgres-dev psql -U postgres -d tourist_safety_db</div>
+                `;
+            }
+        }
+
+        // Get PostgreSQL Tables
+        async function getPostgresTables() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading tables...';
+            
+            try {
+                const response = await fetch('/api/db/postgres/tables');
+                if (response.ok) {
+                    const tables = await response.json();
+                    let tableHtml = '<h4>Database Tables:</h4><table class="table"><tr><th>Table Name</th><th>Rows</th><th>Size</th></tr>';
+                    tables.forEach(table => {
+                        tableHtml += `<tr><td>${table.name}</td><td>${table.rows || 'N/A'}</td><td>${table.size || 'N/A'}</td></tr>`;
+                    });
+                    tableHtml += '</table>';
+                    data.innerHTML = tableHtml;
+                } else {
+                    data.innerHTML = `
+                        <h4>Available Tables:</h4>
+                        <ul>
+                            <li>users - User accounts and profiles</li>
+                            <li>geofences - Geo-fence definitions</li>
+                            <li>incidents - Reported incidents</li>
+                            <li>emergencies - Emergency records</li>
+                            <li>evidence - Evidence logs</li>
+                        </ul>
+                        <p><em>Note: Direct table access requires backend API endpoints.</em></p>
+                    `;
+                }
+            } catch (error) {
+                data.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+
+        // Get PostgreSQL Stats
+        async function getPostgresStats() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading database statistics...';
+            
+            try {
+                const response = await fetch('/api/db/postgres/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    data.innerHTML = `
+                        <h4>Database Statistics:</h4>
+                        <pre>${JSON.stringify(stats, null, 2)}</pre>
+                    `;
+                } else {
+                    data.innerHTML = `
+                        <h4>Database Statistics:</h4>
+                        <ul>
+                            <li>Database Size: ~50MB (estimated)</li>
+                            <li>Total Tables: 5</li>
+                            <li>Active Connections: 1-3</li>
+                            <li>Uptime: Since container start</li>
+                        </ul>
+                    `;
+                }
+            } catch (error) {
+                data.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        // Test MongoDB Connection
+        async function testMongoConnection() {
+            const status = document.getElementById('mongodb-status');
+            const data = document.getElementById('mongodb-data');
+            
+            status.innerHTML = '<span class="loading"></span> Testing MongoDB connection...';
+            status.className = 'status';
+            
+            try {
+                const response = await fetch('/api/db/mongodb/status');
+                if (response.ok) {
+                    const result = await response.json();
+                    status.textContent = '✅ MongoDB: Connected';
+                    status.className = 'status connected';
+                    systemStatus.mongodb = true;
+                    data.innerHTML = `
+                        <h4>MongoDB Status:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                } else {
+                    throw new Error('MongoDB endpoint not available');
+                }
+            } catch (error) {
+                status.textContent = '❌ MongoDB: Connection failed';
+                status.className = 'status disconnected';
+                systemStatus.mongodb = false;
+                data.innerHTML = `
+                    <p>Error: ${error.message}</p>
+                    <p><strong>Manual Connection:</strong></p>
+                    <div class="terminal">docker exec -it bon-voyage-mongo-dev mongosh -u admin -p password123</div>
+                `;
+            }
+        }
+
+        // Get PostgreSQL Users
+        async function getPostgresUsers() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading users...';
+            
+            try {
+                const response = await fetch('/api/db/postgres/users');
+                if (response.ok) {
+                    const users = await response.json();
+                    if (users.length > 0) {
+                        let html = '<h4>PostgreSQL Users:</h4><table class="table"><tr><th>ID</th><th>Name</th><th>Email</th><th>Created</th></tr>';
+                        users.forEach(user => {
+                            html += `<tr><td>${user.id || 'N/A'}</td><td>${user.name || 'N/A'}</td><td>${user.email || 'N/A'}</td><td>${user.created_at || 'N/A'}</td></tr>`;
+                        });
+                        html += '</table>';
+                        data.innerHTML = html;
+                    } else {
+                        data.innerHTML = '<h4>PostgreSQL Users:</h4><p>No users found in PostgreSQL database.</p><p><em>Note: Users are stored in MongoDB, not PostgreSQL.</em></p>';
+                    }
+                } else {
+                    data.innerHTML = '<h4>PostgreSQL Users:</h4><p>Error loading users from PostgreSQL.</p><p><em>Note: Users are stored in MongoDB, not PostgreSQL.</em></p>';
+                }
+            } catch (error) {
+                data.innerHTML = '<h4>PostgreSQL Users:</h4><p>Error: ' + error.message + '</p><p><em>Note: Users are stored in MongoDB, not PostgreSQL.</em></p>';
+            }
+        }
+
+        // Get MongoDB Collections
+        async function getMongoCollections() {
+            const data = document.getElementById('mongodb-data');
+            data.innerHTML = '<span class="loading"></span> Loading collections...';
+            
+            try {
+                const response = await fetch('/api/db/mongodb/collections');
+                if (response.ok) {
+                    const collections = await response.json();
+                    let collectionHtml = '<h4>Database Collections:</h4><table class="table"><tr><th>Collection</th><th>Documents</th><th>Size</th></tr>';
+                    collections.forEach(collection => {
+                        collectionHtml += `<tr><td>${collection.name}</td><td>${collection.count || 'N/A'}</td><td>${collection.size || 'N/A'}</td></tr>`;
+                    });
+                    collectionHtml += '</table>';
+                    data.innerHTML = collectionHtml;
+                } else {
+                    data.innerHTML = `
+                        <h4>Available Collections:</h4>
+                        <ul>
+                            <li>users - User documents</li>
+                            <li>geofences - Geo-fence documents</li>
+                            <li>incidents - Incident reports</li>
+                            <li>emergencies - Emergency records</li>
+                            <li>evidence - Evidence documents</li>
+                            <li>chats - Chat messages</li>
+                        </ul>
+                        <p><em>Note: Direct collection access requires backend API endpoints.</em></p>
+                    `;
+                }
+            } catch (error) {
+                data.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+
+        // Get MongoDB Stats
+        async function getMongoStats() {
+            const data = document.getElementById('mongodb-data');
+            data.innerHTML = '<span class="loading"></span> Loading database statistics...';
+            
+            try {
+                const response = await fetch('/api/db/mongodb/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    data.innerHTML = `
+                        <h4>Database Statistics:</h4>
+                        <pre>${JSON.stringify(stats, null, 2)}</pre>
+                    `;
+                } else {
+                    data.innerHTML = `
+                        <h4>Database Statistics:</h4>
+                        <ul>
+                            <li>Database Size: ~25MB (estimated)</li>
+                            <li>Total Collections: 6</li>
+                            <li>Active Connections: 1-2</li>
+                            <li>Uptime: Since container start</li>
+                        </ul>
+                    `;
+                }
+            } catch (error) {
+                data.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        // Get PostgreSQL Geo-fences
+        async function getPostgresGeofences() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading geo-fences...';
+            
+            try {
+                const response = await fetch('/api/geofences');
+                if (response.ok) {
+                    const result = await response.json();
+                    const geofences = result.data;
+                    
+                    if (geofences.length > 0) {
+                        let html = '<h4>🚫 Active Geo-fences:</h4>';
+                        html += '<table class="table"><tr><th>ID</th><th>Name</th><th>State</th><th>City</th><th>Radius</th><th>Status</th><th>Created</th></tr>';
+                        geofences.forEach(fence => {
+                            html += `<tr>
+                                <td>${fence.id}</td>
+                                <td>${fence.name}</td>
+                                <td>${fence.state}</td>
+                                <td>${fence.city || 'N/A'}</td>
+                                <td>${fence.radius}m</td>
+                                <td>${fence.is_active ? '✅ Active' : '❌ Inactive'}</td>
+                                <td>${new Date(fence.created_at).toLocaleDateString()}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                        data.innerHTML = html;
+                    } else {
+                        data.innerHTML = '<h4>🚫 Geo-fences:</h4><p>No geo-fences found in database.</p>';
+                    }
+                } else {
+                    data.innerHTML = '<h4>🚫 Geo-fences:</h4><p>Error loading geo-fences from database.</p>';
+                }
+            } catch (error) {
+                data.innerHTML = '<h4>🚫 Geo-fences:</h4><p>Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Get PostgreSQL Geo-fence Violations
+        async function getPostgresViolations() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading violations...';
+            
+            try {
+                const response = await fetch('/api/geofences/violations?limit=50');
+                if (response.ok) {
+                    const result = await response.json();
+                    const violations = result.data;
+                    
+                    if (violations.length > 0) {
+                        let html = '<h4>⚠️ Recent Geo-fence Violations:</h4>';
+                        html += '<table class="table"><tr><th>ID</th><th>Geo-fence</th><th>User</th><th>Type</th><th>State</th><th>Handled</th><th>Time</th></tr>';
+                        violations.forEach(violation => {
+                            html += `<tr>
+                                <td>${violation.id}</td>
+                                <td>${violation.geofence_name}</td>
+                                <td>${violation.user_name || violation.user_email}</td>
+                                <td>${violation.violation_type}</td>
+                                <td>${violation.geofence_state}</td>
+                                <td>${violation.is_handled ? '✅ Yes' : '❌ No'}</td>
+                                <td>${new Date(violation.timestamp).toLocaleString()}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                        data.innerHTML = html;
+                    } else {
+                        data.innerHTML = '<h4>⚠️ Violations:</h4><p>No violations found in database.</p>';
+                    }
+                } else {
+                    data.innerHTML = '<h4>⚠️ Violations:</h4><p>Error loading violations from database.</p>';
+                }
+            } catch (error) {
+                data.innerHTML = '<h4>⚠️ Violations:</h4><p>Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Get PostgreSQL Incidents
+        async function getPostgresIncidents() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading incidents...';
+            
+            try {
+                const response = await fetch('/api/incidents');
+                if (response.ok) {
+                    const result = await response.json();
+                    const incidents = result.data;
+                    
+                    if (incidents.length > 0) {
+                        let html = '<h4>📋 Reported Incidents:</h4>';
+                        html += '<table class="table"><tr><th>ID</th><th>Type</th><th>Description</th><th>User</th><th>State</th><th>Status</th><th>Reported</th></tr>';
+                        incidents.forEach(incident => {
+                            html += `<tr>
+                                <td>${incident.id}</td>
+                                <td>${incident.incident_type}</td>
+                                <td>${incident.description.substring(0, 50)}...</td>
+                                <td>${incident.user_name || incident.user_email || 'N/A'}</td>
+                                <td>${incident.state || 'N/A'}</td>
+                                <td>${incident.status}</td>
+                                <td>${new Date(incident.reported_at).toLocaleDateString()}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                        data.innerHTML = html;
+                    } else {
+                        data.innerHTML = '<h4>📋 Incidents:</h4><p>No incidents found in database.</p>';
+                    }
+                } else {
+                    data.innerHTML = '<h4>📋 Incidents:</h4><p>Error loading incidents from database.</p>';
+                }
+            } catch (error) {
+                data.innerHTML = '<h4>📋 Incidents:</h4><p>Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Get PostgreSQL Emergencies
+        async function getPostgresEmergencies() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading emergencies...';
+            
+            try {
+                const response = await fetch('/api/emergencies');
+                if (response.ok) {
+                    const result = await response.json();
+                    const emergencies = result.data;
+                    
+                    if (emergencies.length > 0) {
+                        let html = '<h4>🚨 Emergency Records:</h4>';
+                        html += '<table class="table"><tr><th>ID</th><th>Type</th><th>Description</th><th>User</th><th>Priority</th><th>Status</th><th>Reported</th></tr>';
+                        emergencies.forEach(emergency => {
+                            html += `<tr>
+                                <td>${emergency.id}</td>
+                                <td>${emergency.emergency_type}</td>
+                                <td>${emergency.description.substring(0, 50)}...</td>
+                                <td>${emergency.user_name || emergency.user_email || 'N/A'}</td>
+                                <td>${emergency.priority}</td>
+                                <td>${emergency.status}</td>
+                                <td>${new Date(emergency.reported_at).toLocaleDateString()}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                        data.innerHTML = html;
+                    } else {
+                        data.innerHTML = '<h4>🚨 Emergencies:</h4><p>No emergencies found in database.</p>';
+                    }
+                } else {
+                    data.innerHTML = '<h4>🚨 Emergencies:</h4><p>Error loading emergencies from database.</p>';
+                }
+            } catch (error) {
+                data.innerHTML = '<h4>🚨 Emergencies:</h4><p>Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Get PostgreSQL Evidence
+        async function getPostgresEvidence() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading evidence...';
+            
+            try {
+                const response = await fetch('/api/evidence');
+                if (response.ok) {
+                    const result = await response.json();
+                    const evidence = result.data;
+                    
+                    if (evidence.length > 0) {
+                        let html = '<h4>📁 Evidence Logs:</h4>';
+                        html += '<table class="table"><tr><th>ID</th><th>Type</th><th>File Name</th><th>Size</th><th>Uploaded By</th><th>Verified</th><th>Uploaded</th></tr>';
+                        evidence.forEach(ev => {
+                            html += `<tr>
+                                <td>${ev.id}</td>
+                                <td>${ev.evidence_type}</td>
+                                <td>${ev.file_name || 'N/A'}</td>
+                                <td>${ev.file_size ? (ev.file_size / 1024).toFixed(1) + ' KB' : 'N/A'}</td>
+                                <td>${ev.uploaded_by || 'N/A'}</td>
+                                <td>${ev.is_verified ? '✅ Yes' : '❌ No'}</td>
+                                <td>${new Date(ev.uploaded_at).toLocaleDateString()}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                        data.innerHTML = html;
+                    } else {
+                        data.innerHTML = '<h4>📁 Evidence:</h4><p>No evidence found in database.</p>';
+                    }
+                } else {
+                    data.innerHTML = '<h4>📁 Evidence:</h4><p>Error loading evidence from database.</p>';
+                }
+            } catch (error) {
+                data.innerHTML = '<h4>📁 Evidence:</h4><p>Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Get PostgreSQL Police Officers
+        async function getPostgresPolice() {
+            const data = document.getElementById('postgres-data');
+            data.innerHTML = '<span class="loading"></span> Loading police officers...';
+            
+            try {
+                const response = await fetch('/api/police');
+                if (response.ok) {
+                    const result = await response.json();
+                    const police = result.data;
+                    
+                    if (police.length > 0) {
+                        let html = '<h4>👮 Police Officers:</h4>';
+                        html += '<table class="table"><tr><th>Badge</th><th>Name</th><th>Rank</th><th>Department</th><th>State</th><th>City</th><th>Status</th></tr>';
+                        police.forEach(officer => {
+                            html += `<tr>
+                                <td>${officer.badge_number}</td>
+                                <td>${officer.name}</td>
+                                <td>${officer.rank}</td>
+                                <td>${officer.department}</td>
+                                <td>${officer.state}</td>
+                                <td>${officer.city || 'N/A'}</td>
+                                <td>${officer.is_active ? '✅ Active' : '❌ Inactive'}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                        data.innerHTML = html;
+                    } else {
+                        data.innerHTML = '<h4>👮 Police Officers:</h4><p>No police officers found in database.</p>';
+                    }
+                } else {
+                    data.innerHTML = '<h4>👮 Police Officers:</h4><p>Error loading police officers from database.</p>';
+                }
+            } catch (error) {
+                data.innerHTML = '<h4>👮 Police Officers:</h4><p>Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Get MongoDB Users
+        async function getMongoUsers() {
+            const data = document.getElementById('mongodb-data');
+            data.innerHTML = '<span class="loading"></span> Loading users...';
+            
+            try {
+                // Fetch both regular users and blockchain Travel IDs
+                const [usersResponse, blockchainIdsResponse] = await Promise.all([
+                    fetch('/api/db/mongodb/users'),
+                    fetch('/api/db/blockchain-travel-ids')
+                ]);
+                
+                const users = usersResponse.ok ? await usersResponse.json() : [];
+                const blockchainIds = blockchainIdsResponse.ok ? await blockchainIdsResponse.json() : [];
+                
+                if (users.length > 0 || blockchainIds.length > 0) {
+                    let html = '<h4>MongoDB Users & Blockchain Travel IDs:</h4>';
+                    
+                    // Regular Users Table with Blockchain Travel IDs
+                    if (users.length > 0) {
+                        html += '<h5>👥 Registered Users with Blockchain Travel IDs:</h5>';
+                        html += '<table class="table"><tr><th>Name</th><th>Email</th><th>Phone</th><th>Blockchain Travel ID</th><th>Status</th><th>Created</th></tr>';
+                        users.forEach(user => {
+                            // Find the blockchain Travel ID for this user
+                            const userBlockchainId = blockchainIds.find(id => id.userEmail === user.email);
+                            const blockchainId = userBlockchainId ? userBlockchainId.travelId : 'Not Generated';
+                            const status = userBlockchainId ? userBlockchainId.status : 'N/A';
+                            
+                            html += `<tr>
+                                <td>${user.name || 'N/A'}</td>
+                                <td>${user.email || 'N/A'}</td>
+                                <td>${user.phone || 'N/A'}</td>
+                                <td><code>${blockchainId}</code></td>
+                                <td>${status === 'active' ? '✅ Active' : '❌ ' + status}</td>
+                                <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                    }
+                    
+                    // Blockchain Travel IDs Table
+                    if (blockchainIds.length > 0) {
+                        html += '<h5>🔗 Blockchain Travel IDs:</h5>';
+                        html += '<table class="table"><tr><th>Travel ID</th><th>User Email</th><th>Status</th><th>Generated</th></tr>';
+                        blockchainIds.forEach(id => {
+                            html += `<tr>
+                                <td><code>${id.travelId}</code></td>
+                                <td>${id.userEmail || 'N/A'}</td>
+                                <td>${id.status || 'active'}</td>
+                                <td>${id.generatedAt ? new Date(id.generatedAt).toLocaleDateString() : 'N/A'}</td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                    }
+                    
+                    data.innerHTML = html;
+                } else {
+                    data.innerHTML = '<h4>MongoDB Users:</h4><p>No users or blockchain Travel IDs found in MongoDB database.</p>';
+                }
+            } catch (error) {
+                data.innerHTML = '<h4>MongoDB Users:</h4><p>Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Test Redis Connection
+        async function testRedisConnection() {
+            const status = document.getElementById('redis-status');
+            const data = document.getElementById('redis-data');
+            
+            status.innerHTML = '<span class="loading"></span> Testing Redis connection...';
+            status.className = 'status';
+            
+            try {
+                const response = await fetch('/api/db/redis/status');
+                if (response.ok) {
+                    const result = await response.json();
+                    status.textContent = '✅ Redis: Connected';
+                    status.className = 'status connected';
+                    systemStatus.redis = true;
+                    data.innerHTML = `
+                        <h4>Redis Status:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                } else {
+                    throw new Error('Redis endpoint not available');
+                }
+            } catch (error) {
+                status.textContent = '❌ Redis: Connection failed';
+                status.className = 'status disconnected';
+                systemStatus.redis = false;
+                data.innerHTML = `
+                    <p>Error: ${error.message}</p>
+                    <p><strong>Manual Connection:</strong></p>
+                    <div class="terminal">docker exec -it bon-voyage-redis-dev redis-cli -a password123</div>
+                `;
+            }
+        }
+
+        // Get Redis Keys
+        async function getRedisKeys() {
+            const data = document.getElementById('redis-data');
+            data.innerHTML = '<span class="loading"></span> Loading keys...';
+            
+            try {
+                const response = await fetch('/api/db/redis/keys');
+                if (response.ok) {
+                    const keys = await response.json();
+                    data.innerHTML = `
+                        <h4>Redis Keys:</h4>
+                        <pre>${JSON.stringify(keys, null, 2)}</pre>
+                    `;
+                } else {
+                    data.innerHTML = `
+                        <h4>Redis Cache Keys:</h4>
+                        <ul>
+                            <li>session:* - User sessions</li>
+                            <li>user:* - User data cache</li>
+                            <li>location:* - Location data</li>
+                            <li>geofence:* - Geo-fence cache</li>
+                            <li>incident:* - Incident cache</li>
+                        </ul>
+                        <p><em>Note: Direct key access requires backend API endpoints.</em></p>
+                    `;
+                }
+            } catch (error) {
+                data.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        // Get Redis Info
+        async function getRedisInfo() {
+            const data = document.getElementById('redis-data');
+            data.innerHTML = '<span class="loading"></span> Loading Redis info...';
+            
+            try {
+                const response = await fetch('/api/db/redis/info');
+                if (response.ok) {
+                    const info = await response.json();
+                    data.innerHTML = `
+                        <h4>Redis Information:</h4>
+                        <pre>${JSON.stringify(info, null, 2)}</pre>
+                    `;
+                } else {
+                    data.innerHTML = `
+                        <h4>Redis Information:</h4>
+                        <ul>
+                            <li>Version: Redis 7.x</li>
+                            <li>Memory Usage: ~10MB (estimated)</li>
+                            <li>Connected Clients: 1-2</li>
+                            <li>Uptime: Since container start</li>
+                        </ul>
+                    `;
+                }
+            } catch (error) {
+                data.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        // Clear Redis Cache
+        async function clearRedisCache() {
+            if (confirm('Are you sure you want to clear the Redis cache? This will remove all cached data.')) {
+                const data = document.getElementById('redis-data');
+                data.innerHTML = '<span class="loading"></span> Clearing cache...';
+                
+                try {
+                    const response = await fetch('/api/db/redis/clear', { method: 'POST' });
+                    if (response.ok) {
+                        data.innerHTML = '<p>✅ Cache cleared successfully!</p>';
+                    } else {
+                        throw new Error('Failed to clear cache');
+                    }
+                } catch (error) {
+                    data.innerHTML = `<p>Error: ${error.message}</p>`;
+                }
+            }
+        }
+
+        // Check API Health
+        async function checkAPIHealth() {
+            const status = document.getElementById('api-status');
+            const data = document.getElementById('api-data');
+            
+            status.innerHTML = '<span class="loading"></span> Checking API health...';
+            status.className = 'status';
+            
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const health = await response.json();
+                    status.textContent = '✅ API: Healthy';
+                    status.className = 'status connected';
+                    systemStatus.api = true;
+                    data.innerHTML = `
+                        <h4>API Health Status:</h4>
+                        <pre>${JSON.stringify(health, null, 2)}</pre>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                status.textContent = '❌ API: Unhealthy';
+                status.className = 'status disconnected';
+                systemStatus.api = false;
+                data.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        // Test All Endpoints
+        async function testAllEndpoints() {
+            const data = document.getElementById('api-data');
+            data.innerHTML = '<span class="loading"></span> Testing all endpoints...';
+            
+            const endpoints = [
+                '/api/health',
+                '/api/users',
+                '/api/geofences',
+                '/api/incidents',
+                '/api/emergency',
+                '/api/evidence',
+                '/api/chat',
+                '/api/travel-id'
+            ];
+            
+            let results = '<h4>Endpoint Test Results:</h4><table class="table"><tr><th>Endpoint</th><th>Status</th><th>Response</th></tr>';
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint);
+                    const status = response.ok ? '✅ OK' : `❌ ${response.status}`;
+                    const responseText = response.ok ? 'Success' : 'Error';
+                    results += `<tr><td>${endpoint}</td><td>${status}</td><td>${responseText}</td></tr>`;
+                } catch (error) {
+                    results += `<tr><td>${endpoint}</td><td>❌ Error</td><td>${error.message}</td></tr>`;
+                }
+            }
+            
+            results += '</table>';
+            data.innerHTML = results;
+        }
+
+        // Check All Connections
+        async function checkAllConnections() {
+            await Promise.all([
+                testPostgresConnection(),
+                testMongoConnection(),
+                testRedisConnection(),
+                checkAPIHealth()
+            ]);
+            updateSystemStatus();
+        }
+
+        // Update System Status
+        function updateSystemStatus() {
+            const status = document.getElementById('system-status');
+            const data = document.getElementById('system-data');
+            
+            const connectedCount = Object.values(systemStatus).filter(Boolean).length;
+            const totalCount = Object.keys(systemStatus).length;
+            
+            if (connectedCount === totalCount) {
+                status.textContent = `✅ All Systems Operational (${connectedCount}/${totalCount})`;
+                status.className = 'status connected';
+            } else {
+                status.textContent = `⚠️ Partial System Status (${connectedCount}/${totalCount})`;
+                status.className = 'status disconnected';
+            }
+            
+            data.innerHTML = `
+                <h4>System Status:</h4>
+                <ul>
+                    <li>PostgreSQL: ${systemStatus.postgres ? '✅ Connected' : '❌ Disconnected'}</li>
+                    <li>MongoDB: ${systemStatus.mongodb ? '✅ Connected' : '❌ Disconnected'}</li>
+                    <li>Redis: ${systemStatus.redis ? '✅ Connected' : '❌ Disconnected'}</li>
+                    <li>API: ${systemStatus.api ? '✅ Healthy' : '❌ Unhealthy'}</li>
+                </ul>
+            `;
+        }
+
+        // Export Database Info
+        function exportDatabaseInfo() {
+            const info = {
+                timestamp: new Date().toISOString(),
+                systemStatus,
+                connections: {
+                    postgres: {
+                        host: 'localhost:5433',
+                        database: 'tourist_safety_db',
+                        user: 'postgres'
+                    },
+                    mongodb: {
+                        host: 'localhost:27018',
+                        database: 'tourist_safety_mongo',
+                        user: 'admin'
+                    },
+                    redis: {
+                        host: 'localhost:6380'
+                    }
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(info, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bon-voyage-db-info-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Database Operations
+        async function backupDatabases() {
+            const data = document.getElementById('operations-data');
+            data.innerHTML = '<span class="loading"></span> Creating database backup...';
+            
+            try {
+                const response = await fetch('/api/db/backup', { method: 'POST' });
+                if (response.ok) {
+                    data.innerHTML = '<p>✅ Database backup created successfully!</p>';
+                } else {
+                    throw new Error('Backup failed');
+                }
+            } catch (error) {
+                data.innerHTML = `
+                    <p>Error: ${error.message}</p>
+                    <p><strong>Manual Backup Commands:</strong></p>
+                    <div class="terminal">
+# PostgreSQL Backup<br>
+docker exec bon-voyage-postgres-dev pg_dump -U postgres tourist_safety_db > backup.sql<br><br>
+# MongoDB Backup<br>
+docker exec bon-voyage-mongo-dev mongodump --username admin --password password123 --db tourist_safety_mongo --out /backup
+                    </div>
+                `;
+            }
+        }
+
+        async function restoreDatabases() {
+            const data = document.getElementById('operations-data');
+            data.innerHTML = '<p>⚠️ Restore functionality requires file upload. Use manual commands:</p><div class="terminal"># PostgreSQL Restore<br>docker exec -i bon-voyage-postgres-dev psql -U postgres tourist_safety_db < backup.sql</div>';
+        }
+
+        async function optimizeDatabases() {
+            const data = document.getElementById('operations-data');
+            data.innerHTML = '<span class="loading"></span> Optimizing databases...';
+            
+            try {
+                const response = await fetch('/api/db/optimize', { method: 'POST' });
+                if (response.ok) {
+                    data.innerHTML = '<p>✅ Database optimization completed!</p>';
+                } else {
+                    throw new Error('Optimization failed');
+                }
+            } catch (error) {
+                data.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        async function resetDatabases() {
+            if (confirm('⚠️ WARNING: This will reset ALL databases and delete all data. Are you absolutely sure?')) {
+                if (confirm('This action cannot be undone. Type "RESET" to confirm:')) {
+                    const data = document.getElementById('operations-data');
+                    data.innerHTML = '<span class="loading"></span> Resetting databases...';
+                    
+                    try {
+                        const response = await fetch('/api/db/reset', { method: 'POST' });
+                        if (response.ok) {
+                            data.innerHTML = '<p>✅ Databases reset successfully!</p>';
+                        } else {
+                            throw new Error('Reset failed');
+                        }
+                    } catch (error) {
+                        data.innerHTML = `<p>Error: ${error.message}</p>`;
+                    }
+                }
+            }
+        }
+
+        // Auto-check connections on page load
+        window.addEventListener('load', () => {
+            checkAllConnections();
+        });
+    </script>
+</body>
+</html>

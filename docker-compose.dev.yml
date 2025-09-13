@@ -1,0 +1,79 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bon-voyage-postgres-dev
+    environment:
+      POSTGRES_DB: tourist_safety_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5433:5432"  # Changed to avoid conflict with local PostgreSQL
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - bon-voyage-network
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: bon-voyage-mongo-dev
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    ports:
+      - "27018:27017"  # Changed to avoid conflict with local MongoDB
+    volumes:
+      - mongodb_dev_data:/data/db
+    networks:
+      - bon-voyage-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bon-voyage-redis-dev
+    command: redis-server --requirepass password123
+    ports:
+      - "6380:6379"  # Changed to avoid conflict with local Redis
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - bon-voyage-network
+
+  # Backend Application (serves both API and frontend)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: bon-voyage-backend-dev
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:password123@postgres:5432/tourist_safety_db
+      MONGODB_URL: mongodb://admin:password123@mongodb:27017/tourist_safety_mongo?authSource=admin
+      REDIS_URL: redis://:password123@redis:6379
+      FRONTEND_URL: http://localhost:3001
+      CORS_ORIGIN: http://localhost:3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    command: npm run dev
+    networks:
+      - bon-voyage-network
+
+volumes:
+  postgres_dev_data:
+  mongodb_dev_data:
+  redis_dev_data:
+
+networks:
+  bon-voyage-network:
+    driver: bridge

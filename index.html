@@ -1,0 +1,3340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bon Voyage - Tourist Safety</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-left">
+        <span class="time" id="currentTime">9:41</span>
+      </div>
+      <div class="status-right">
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-battery-three-quarters"></i>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <!-- Home Screen -->
+      <div class="screen active" id="homeScreen">
+        <!-- Header -->
+        <header class="app-header">
+          <div class="logo-section">
+            <div class="app-logo">
+              <img src="assets/logo-mark.jpeg" alt="Bon Voyage" class="app-logo-img" />
+              </div>
+            <div class="app-title">
+              <h1>Bon Voyage</h1>
+              <p data-en="Tourist Safety & Guide" data-hi="पर्यटक सुरक्षा और गाइड">Tourist Safety & Guide</p>
+            </div>
+          </div>
+          <div class="user-profile" onclick="switchScreen('profile')">
+            <img id="userAvatar" src="assets/defaultprofile.png" alt="User" />
+          </div>
+        </header>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+          <h2 id="userGreeting" data-en="Namaste! Welcome, Sandra" data-hi="नमस्ते! स्वागत है, सैंड्रा">Namaste! Welcome, Sandra</h2>
+          <div class="location-info">
+            <span class="location-label" data-en="Current Location:" data-hi="वर्तमान स्थान:">Current Location:</span>
+            <span id="userLocation">Shillong, Meghalaya</span>
+            <div class="location-map">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+          </div>
+          </div>
+
+        <!-- iOS-like Feature Grid -->
+        <div class="feature-grid">
+          <!-- Safety Score Pie Chart Card -->
+          <button type="button" class="tile-card score-card" onclick="/*chart click handled separately*/">
+            <canvas id="safetyPie" width="120" height="120" style="max-width:120px;max-height:120px"></canvas>
+            <div class="tile-title" data-en="Safety Score" data-hi="सुरक्षा स्कोर">Safety Score</div>
+            <div class="tile-sub" data-en="Live risk level" data-hi="लाइव जोखिम स्तर">Live risk level</div>
+          </button>
+
+          <button type="button" class="tile-card" onclick="openDigitalID()">
+            <div class="tile-icon" style="background: linear-gradient(135deg,#f97316,#ea580c)"><i class="fas fa-id-card"></i></div>
+            <div class="tile-title" data-en="Digital ID" data-hi="डिजिटल आईडी">Digital ID</div>
+            <div class="tile-sub" data-en="Your identity" data-hi="आपकी पहचान">Your identity</div>
+          </button>
+
+          <button type="button" class="tile-card" onclick="switchScreen('location')">
+            <div class="tile-icon" style="background: linear-gradient(135deg,#3b82f6,#2563eb)"><i class="fas fa-map-marked-alt"></i></div>
+            <div class="tile-title" data-en="Location" data-hi="स्थान">Location</div>
+            <div class="tile-sub" data-en="Geo-fencing" data-hi="जियो-फेंसिंग">Geo-fencing</div>
+          </button>
+
+          <button type="button" class="tile-card" onclick="openEmergency()">
+            <div class="tile-icon" style="background: linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-phone"></i></div>
+            <div class="tile-title" data-en="SOS Call" data-hi="एसओएस कॉल">SOS Call</div>
+            <div class="tile-sub" data-en="Emergency contacts" data-hi="आपातकालीन संपर्क">Emergency contacts</div>
+          </button>
+
+          <button type="button" class="tile-card" onclick="openIncidentReport()">
+            <div class="tile-icon" style="background: linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="tile-title" data-en="Report Incident" data-hi="घटना की रिपोर्ट">Report Incident</div>
+            <div class="tile-sub" data-en="File a complaint" data-hi="शिकायत दर्ज करें">File a complaint</div>
+          </button>
+
+          <button type="button" class="tile-card" onclick="switchScreen('alertsFeed')">
+            <div class="tile-icon" style="background: linear-gradient(135deg,#22c55e,#16a34a)"><i class="fas fa-bell"></i></div>
+            <div class="tile-title" data-en="Alerts" data-hi="अलर्ट">Alerts</div>
+            <div class="tile-sub" data-en="24/7 updates" data-hi="24/7 अपडेट">24/7 updates</div>
+          </button>
+
+          <button type="button" class="tile-card" onclick="switchScreen('countryInfo')">
+            <div class="tile-icon" style="background: linear-gradient(135deg,#8b5cf6,#7c3aed)"><i class="fas fa-flag"></i></div>
+            <div class="tile-title">Country</div>
+            <div class="tile-sub">Info & rules</div>
+          </button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button type="button" class="quick-btn" onclick="switchScreen('guide')">
+            <i class="fas fa-compass"></i>
+            <span data-en="Travel Guide" data-hi="यात्रा गाइड">Travel Guide</span>
+          </button>
+          <button type="button" class="quick-btn" onclick="switchScreen('connect')">
+            <i class="fas fa-users"></i>
+            <span data-en="Connect" data-hi="कनेक्ट">Connect</span>
+          </button>
+          <button type="button" class="quick-btn" onclick="shareLocation()">
+            <i class="fas fa-share-location"></i>
+            <span data-en="Share Location" data-hi="स्थान साझा करें">Share Location</span>
+          </button>
+        </div>
+        </div>
+
+      <!-- Safety Detail Panel -->
+      <div class="modal" id="safetyDetailModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 id="safetyDetailTitle">Safety Detail</h3>
+            <button class="close-btn" onclick="closeSafetyDetailPanel()"><i class="fas fa-times"></i></button>
+              </div>
+          <div id="safetyDetailBody" style="display:flex;flex-direction:column;gap:8px;">
+            <!-- populated dynamically -->
+              </div>
+              </div>
+            </div>
+
+      <!-- Travel ID Modal -->
+      <div class="modal" id="travelIdModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Unique Travel ID</h3>
+            <button class="close-btn" onclick="closeTravelIdModal()"><i class="fas fa-times"></i></button>
+              </div>
+          <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+            <div id="travelIdValue" style="font-weight:700;color:#1a1a1a;">—</div>
+            <div id="qrContainer" style="background:#fff;padding:12px;border-radius:12px;"></div>
+            <button class="search-btn" style="width:auto;padding:10px 14px;" onclick="regenerateTravelID()" id="regenerateBtn"><i class="fas fa-magic" style="margin-right:6px;"></i>Generate Travel ID</button>
+            <button class="search-btn" style="width:auto;padding:10px 14px;background:#dc3545;margin-left:8px;" onclick="clearTravelID()" id="clearBtn"><i class="fas fa-trash" style="margin-right:6px;"></i>Clear ID</button>
+            <div style="width:100%;" class="menu-items">
+              <div class="menu-item">
+                <div class="menu-icon"><i class="fas fa-circle-info"></i></div>
+                <div class="menu-content">
+                  <div class="menu-title">Status</div>
+                  <div class="menu-subtitle" id="travelIdStatus">Not generated</div>
+              </div>
+              </div>
+              <div class="menu-item">
+                <div class="menu-icon"><i class="fas fa-clock"></i></div>
+                <div class="menu-content">
+                  <div class="menu-title">History</div>
+                  <div class="menu-subtitle" id="travelIdHistory">No validations yet</div>
+                </div>
+              </div>
+            </div>
+          </div>
+              </div>
+            </div>
+
+      <!-- Attractions Modal -->
+      <div class="modal" id="attractionsModal">
+        <div class="modal-content" style="max-width: 600px; max-height: 80vh;">
+          <div class="modal-header">
+            <h3><i class="fas fa-map-marker-alt" style="margin-right: 10px; color: #3b82f6;"></i>All Attractions</h3>
+            <button class="close-btn" onclick="closeModal('attractionsModal')"><i class="fas fa-times"></i></button>
+              </div>
+          <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+            <div id="attractionsList"></div>
+            </div>
+          </div>
+      </div>
+
+      <!-- Restaurants Modal -->
+      <div class="modal" id="restaurantsModal">
+        <div class="modal-content" style="max-width: 600px; max-height: 80vh;">
+          <div class="modal-header">
+            <h3><i class="fas fa-utensils" style="margin-right: 10px; color: #f97316;"></i>Top Restaurants</h3>
+            <button class="close-btn" onclick="closeModal('restaurantsModal')"><i class="fas fa-times"></i></button>
+              </div>
+          <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+            <div id="restaurantsList"></div>
+          </div>
+        </div>
+              </div>
+              
+      <!-- Transport Modal -->
+      <div class="modal" id="transportModal">
+        <div class="modal-content" style="max-width: 600px; max-height: 80vh;">
+          <div class="modal-header">
+            <h3><i class="fas fa-bus" style="margin-right: 10px; color: #10b981;"></i>Transportation Options</h3>
+            <button class="close-btn" onclick="closeModal('transportModal')"><i class="fas fa-times"></i></button>
+                </div>
+          <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+            <div id="transportList"></div>
+              </div>
+            </div>
+          </div>
+
+      <!-- Culture Modal -->
+      <div class="modal" id="cultureModal">
+        <div class="modal-content" style="max-width: 600px; max-height: 80vh;">
+          <div class="modal-header">
+            <h3><i class="fas fa-globe" style="margin-right: 10px; color: #8b5cf6;"></i>Cultural Insights</h3>
+            <button class="close-btn" onclick="closeModal('cultureModal')"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+            <div id="cultureList"></div>
+          </div>
+        </div>
+          </div>
+
+      <!-- Today's Recommendations Modal -->
+      <div class="modal" id="recommendationsModal">
+        <div class="modal-content" style="max-width: 600px; max-height: 80vh;">
+          <div class="modal-header">
+            <h3><i class="fas fa-star" style="margin-right: 10px; color: #f59e0b;"></i>Today's Top Recommendations</h3>
+            <button class="close-btn" onclick="closeModal('recommendationsModal')"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+            <div id="recommendationsList"></div>
+          </div>
+        </div>
+          </div>
+          
+      <!-- Account / Profile Screen -->
+      <div class="screen" id="profileScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')"><i class="fas fa-chevron-left"></i></button>
+          <h2 data-en="Account" data-hi="खाता">Account</h2>
+          <button class="refresh-btn" onclick="toggleEditProfile()" title="Edit"><i class="fas fa-pen"></i></button>
+        </header>
+        <div class="profile-content" style="padding-bottom:16px;">
+          <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:20px;">
+            <div style="width:120px;height:120px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,0.3);box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+              <img id="accountAvatar" src="assets/defaultprofile.png" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
+              </div>
+            <div style="margin-top:12px;">
+              <input id="avatarInput" type="file" accept="image/*" style="display:none" onchange="handlePhotoChange(event)">
+              <button class="search-btn" style="width:auto;padding:10px 14px;" onclick="openFilePicker()"><i class="fas fa-camera" style="margin-right:6px;"></i>Change Photo</button>
+            </div>
+          </div>
+          
+          <div class="menu-items" style="margin-bottom:16px;">
+            <div class="menu-item">
+              <div class="menu-icon"><i class="fas fa-user"></i></div>
+              <div class="menu-content" style="width:100%;">
+                <div class="menu-title">Full Name</div>
+                <input id="accountName" type="text" class="location-input" placeholder="Your name" disabled>
+      </div>
+              </div>
+            <div class="menu-item">
+              <div class="menu-icon"><i class="fas fa-envelope"></i></div>
+              <div class="menu-content" style="width:100%;">
+                <div class="menu-title">Email</div>
+                <input id="accountEmail" type="email" class="location-input" placeholder="you@example.com" disabled>
+              </div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-icon"><i class="fas fa-phone"></i></div>
+              <div class="menu-content" style="width:100%;">
+                <div class="menu-title">Phone</div>
+                <input id="accountPhone" type="tel" class="location-input" placeholder="+91 98765 43210" disabled>
+              </div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-icon"><i class="fas fa-id-card"></i></div>
+              <div class="menu-content" style="width:100%;">
+                <div class="menu-title">Digital Tourist ID</div>
+                <input id="accountDigitalId" type="text" class="location-input" placeholder="Generate ID" readonly>
+              </div>
+              <button class="btn-secondary" onclick="generateDigitalId()" title="Generate"><i class="fas fa-magic"></i></button>
+      </div>
+    </div>
+
+          <div style="display:flex;gap:12px;">
+            <button class="quick-btn" style="flex:1;" id="saveBtn" onclick="saveAccount()" disabled><i class="fas fa-save"></i><span>Save</span></button>
+            <button class="quick-btn" style="flex:1;" onclick="switchScreen('home')"><i class="fas fa-home"></i><span>Back Home</span></button>
+              </div>
+            </div>
+          </div>
+
+      <!-- Guide Screen -->
+      <div class="screen" id="guideScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')">
+            <i class="fas fa-chevron-left"></i>
+            </button>
+          <h2 data-en="Travel Guide" data-hi="यात्रा गाइड">Travel Guide</h2>
+          <button class="refresh-btn" onclick="refreshGuide()">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </header>
+
+        <div class="guide-content">
+          <div class="guide-categories">
+            <div class="category-card" onclick="openAttractions()">
+              <div class="category-icon">
+                <i class="fas fa-camera"></i>
+            </div>
+              <h3>Attractions</h3>
+              <p>Popular places to visit</p>
+          </div>
+            <div class="category-card" onclick="openRestaurants()">
+              <div class="category-icon">
+                <i class="fas fa-utensils"></i>
+          </div>
+              <h3>Restaurants</h3>
+              <p>Local food & dining</p>
+        </div>
+            <div class="category-card" onclick="openTransport()">
+              <div class="category-icon">
+                <i class="fas fa-bus"></i>
+        </div>
+              <h3>Transport</h3>
+              <p>Getting around</p>
+              </div>
+            <div class="category-card" onclick="openCulture()">
+              <div class="category-icon">
+                <i class="fas fa-theater-masks"></i>
+              </div>
+              <h3>Culture</h3>
+              <p>Local customs & tips</p>
+              </div>
+            </div>
+
+          <div class="guide-recommendations">
+            <h3 onclick="openRecommendations()" style="cursor: pointer;">Today's Recommendations</h3>
+            <div class="recommendation-item" onclick="openRecommendations()" style="cursor: pointer;">
+              <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80&h=80&fit=crop" alt="Ward's Lake">
+              <div class="recommendation-info">
+                <h4>Ward's Lake</h4>
+                <p>Beautiful lake perfect for morning walks</p>
+                <div class="rating">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <span>4.8</span>
+              </div>
+              </div>
+            </div>
+            <div class="recommendation-item">
+              <img src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=80&h=80&fit=crop" alt="Elephant Falls">
+              <div class="recommendation-info">
+              <h4>Elephant Falls</h4>
+                <p>Stunning waterfall with scenic views</p>
+                <div class="rating">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+                  <span>4.6</span>
+              </div>
+              </div>
+            </div>
+          </div>
+              </div>
+            </div>
+
+      <!-- Connect Screen -->
+      <div class="screen" id="connectScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')">
+            <i class="fas fa-chevron-left"></i>
+                </button>
+          <h2 data-en="Connect" data-hi="कनेक्ट">Connect</h2>
+          <button class="refresh-btn" onclick="refreshConnections()">
+            <i class="fas fa-sync-alt"></i>
+                </button>
+        </header>
+
+        <div class="connect-content">
+          <div class="connect-options">
+            <div class="connect-card emergency-contacts" onclick="openEmergencyContacts()">
+              <div class="connect-icon">
+                  <i class="fas fa-phone"></i>
+              </div>
+              <h3 data-en="Emergency Contacts" data-hi="आपातकालीन संपर्क">Emergency Contacts</h3>
+              <p data-en="Police, Medical, Embassy" data-hi="पुलिस, चिकित्सा, दूतावास">Police, Medical, Embassy</p>
+            </div>
+            <div class="connect-card community" onclick="openStateChat()">
+              <div class="connect-icon">
+                <i class="fas fa-comments"></i>
+              </div>
+              <h3 data-en="State Chat" data-hi="राज्य चैट">State Chat</h3>
+              <p data-en="Chat with travelers in your state" data-hi="अपने राज्य में यात्रियों से चैट करें">Chat with travelers in your state</p>
+            </div>
+      </div>
+
+          <div class="recent-connections">
+            <h3 data-en="Available Local Guides" data-hi="उपलब्ध स्थानीय गाइड">Available Local Guides</h3>
+            
+            <!-- Guide 1 -->
+            <div class="connection-item guide-item">
+              <div class="guide-avatar">
+                <span class="avatar-text">RK</span>
+              </div>
+              <div class="connection-info">
+                <h4>Rajesh Kumar - Certified Guide</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Delhi, India</p>
+                <div class="guide-rating">
+                  <span class="stars">★★★★★</span>
+                  <span class="rating-text">4.9/5 (127 reviews)</span>
+                </div>
+                <span class="status online" data-en="Available Now" data-hi="अभी उपलब्ध">Available Now</span>
+              </div>
+              <div class="guide-actions">
+                <button class="connect-btn call-btn" onclick="callGuide('+91-98765-43210', 'Rajesh Kumar')">
+                  <i class="fas fa-phone"></i>
+                </button>
+                <button class="connect-btn message-btn" onclick="messageGuide('Rajesh Kumar')">
+                  <i class="fas fa-comment"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Guide 2 -->
+            <div class="connection-item guide-item">
+              <div class="guide-avatar">
+                <span class="avatar-text">PS</span>
+              </div>
+              <div class="connection-info">
+                <h4>Priya Sharma - Heritage Specialist</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Mumbai, Maharashtra</p>
+                <div class="guide-rating">
+                  <span class="stars">★★★★★</span>
+                  <span class="rating-text">4.8/5 (89 reviews)</span>
+                </div>
+                <span class="status online" data-en="Available Now" data-hi="अभी उपलब्ध">Available Now</span>
+              </div>
+              <div class="guide-actions">
+                <button class="connect-btn call-btn" onclick="callGuide('+91-98765-43211', 'Priya Sharma')">
+                  <i class="fas fa-phone"></i>
+                </button>
+                <button class="connect-btn message-btn" onclick="messageGuide('Priya Sharma')">
+                  <i class="fas fa-comment"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Guide 3 -->
+            <div class="connection-item guide-item">
+              <div class="guide-avatar">
+                <span class="avatar-text">AM</span>
+              </div>
+              <div class="connection-info">
+                <h4>Amit Mishra - Adventure Guide</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Goa, India</p>
+                <div class="guide-rating">
+                  <span class="stars">★★★★☆</span>
+                  <span class="rating-text">4.6/5 (156 reviews)</span>
+                </div>
+                <span class="status busy" data-en="Busy - 2PM Available" data-hi="व्यस्त - शाम 2 बजे उपलब्ध">Busy - 2PM Available</span>
+              </div>
+              <div class="guide-actions">
+                <button class="connect-btn call-btn" onclick="callGuide('+91-98765-43212', 'Amit Mishra')">
+                  <i class="fas fa-phone"></i>
+                </button>
+                <button class="connect-btn message-btn" onclick="messageGuide('Amit Mishra')">
+                  <i class="fas fa-comment"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Guide 4 -->
+            <div class="connection-item guide-item">
+              <div class="guide-avatar">
+                <span class="avatar-text">SS</span>
+              </div>
+              <div class="connection-info">
+                <h4>Sneha Singh - Cultural Expert</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Jaipur, Rajasthan</p>
+                <div class="guide-rating">
+                  <span class="stars">★★★★★</span>
+                  <span class="rating-text">4.9/5 (203 reviews)</span>
+                </div>
+                <span class="status online" data-en="Available Now" data-hi="अभी उपलब्ध">Available Now</span>
+              </div>
+              <div class="guide-actions">
+                <button class="connect-btn call-btn" onclick="callGuide('+91-98765-43213', 'Sneha Singh')">
+                  <i class="fas fa-phone"></i>
+                </button>
+                <button class="connect-btn message-btn" onclick="messageGuide('Sneha Singh')">
+                  <i class="fas fa-comment"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Guide 5 -->
+            <div class="connection-item guide-item">
+              <div class="guide-avatar">
+                <span class="avatar-text">VP</span>
+              </div>
+              <div class="connection-info">
+                <h4>Vikram Patel - Food & Street Tours</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Ahmedabad, Gujarat</p>
+                <div class="guide-rating">
+                  <span class="stars">★★★★☆</span>
+                  <span class="rating-text">4.7/5 (94 reviews)</span>
+                </div>
+                <span class="status online" data-en="Available Now" data-hi="अभी उपलब्ध">Available Now</span>
+              </div>
+              <div class="guide-actions">
+                <button class="connect-btn call-btn" onclick="callGuide('+91-98765-43214', 'Vikram Patel')">
+                  <i class="fas fa-phone"></i>
+                </button>
+                <button class="connect-btn message-btn" onclick="messageGuide('Vikram Patel')">
+                  <i class="fas fa-comment"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Guide 6 -->
+            <div class="connection-item guide-item">
+              <div class="guide-avatar">
+                <span class="avatar-text">RD</span>
+              </div>
+              <div class="connection-info">
+                <h4>Ravi Das - Spiritual Tours</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Varanasi, Uttar Pradesh</p>
+                <div class="guide-rating">
+                  <span class="stars">★★★★★</span>
+                  <span class="rating-text">4.8/5 (178 reviews)</span>
+                </div>
+                <span class="status away" data-en="Away - Back in 1 hour" data-hi="दूर - 1 घंटे में वापस">Away - Back in 1 hour</span>
+              </div>
+              <div class="guide-actions">
+                <button class="connect-btn call-btn" onclick="callGuide('+91-98765-43215', 'Ravi Das')">
+                  <i class="fas fa-phone"></i>
+                </button>
+                <button class="connect-btn message-btn" onclick="messageGuide('Ravi Das')">
+                  <i class="fas fa-comment"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Guide 7 -->
+            <div class="connection-item guide-item">
+              <div class="guide-avatar">
+                <span class="avatar-text">KG</span>
+              </div>
+              <div class="connection-info">
+                <h4>Kavya Gupta - Wildlife Specialist</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Ranthambore, Rajasthan</p>
+                <div class="guide-rating">
+                  <span class="stars">★★★★☆</span>
+                  <span class="rating-text">4.6/5 (112 reviews)</span>
+                </div>
+                <span class="status online" data-en="Available Now" data-hi="अभी उपलब्ध">Available Now</span>
+              </div>
+              <div class="guide-actions">
+                <button class="connect-btn call-btn" onclick="callGuide('+91-98765-43216', 'Kavya Gupta')">
+                  <i class="fas fa-phone"></i>
+                </button>
+                <button class="connect-btn message-btn" onclick="messageGuide('Kavya Gupta')">
+                  <i class="fas fa-comment"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Guide 8 -->
+            <div class="connection-item guide-item">
+              <div class="guide-avatar">
+                <span class="avatar-text">AS</span>
+              </div>
+              <div class="connection-info">
+                <h4>Arjun Singh - Hill Station Expert</h4>
+                <p><i class="fas fa-map-marker-alt"></i> Shimla, Himachal Pradesh</p>
+                <div class="guide-rating">
+                  <span class="stars">★★★★★</span>
+                  <span class="rating-text">4.9/5 (145 reviews)</span>
+                </div>
+                <span class="status online" data-en="Available Now" data-hi="अभी उपलब्ध">Available Now</span>
+              </div>
+              <div class="guide-actions">
+                <button class="connect-btn call-btn" onclick="callGuide('+91-98765-43217', 'Arjun Singh')">
+                  <i class="fas fa-phone"></i>
+                </button>
+                <button class="connect-btn message-btn" onclick="messageGuide('Arjun Singh')">
+                  <i class="fas fa-comment"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          </div>
+            </div>
+
+      <!-- State Chat Screen -->
+      <div class="screen" id="stateChatScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('connect')">
+            <i class="fas fa-chevron-left"></i>
+                </button>
+          <h2 id="chatStateTitle" data-en="State Chat" data-hi="राज्य चैट">State Chat</h2>
+          <button class="refresh-btn" onclick="refreshChat()">
+            <i class="fas fa-sync-alt"></i>
+                </button>
+        </header>
+
+        <div class="chat-content">
+          <!-- Chat Header with State Info -->
+          <div class="chat-header">
+            <div class="state-info">
+              <div class="state-flag" id="stateFlag">🏛️</div>
+              <div class="state-details">
+                <h3 id="currentStateName">Detecting your state...</h3>
+                <p id="stateDescription">Connecting to local travelers</p>
+              </div>
+            </div>
+            <div class="chat-stats">
+              <div class="stat-item">
+                <i class="fas fa-users"></i>
+                <span id="onlineCount">0</span>
+                <small>Online</small>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-comments"></i>
+                <span id="messageCount">0</span>
+                <small>Messages</small>
+              </div>
+            </div>
+              </div>
+              
+          <!-- Chat Messages -->
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-welcome">
+              <div class="welcome-icon">💬</div>
+              <h4>Welcome to the chat!</h4>
+              <p>Share your travel experiences, ask questions, and connect with fellow travelers in your state.</p>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+              <input type="text" id="chatInput" placeholder="Type your message..." maxlength="500">
+              <button onclick="sendMessage()" class="send-btn" id="sendBtn">
+                <i class="fas fa-paper-plane"></i>
+                  </button>
+            </div>
+            <div class="chat-actions">
+              <button onclick="shareLocation()" class="action-btn">
+                <i class="fas fa-location-arrow"></i>
+                Share Location
+                  </button>
+              <button onclick="sharePhoto()" class="action-btn">
+                <i class="fas fa-camera"></i>
+                Share Photo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      <!-- Alerts Feed Screen -->
+      <div class="screen" id="alertsFeedScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')"><i class="fas fa-chevron-left"></i></button>
+          <h2>Travel Alerts</h2>
+          <span></span>
+        </header>
+        <div class="menu-items" id="alertsFeedList">
+          <div class="menu-item">
+            <div class="menu-icon"><i class="fas fa-cloud-bolt"></i></div>
+            <div class="menu-content">
+              <div class="menu-title">Severe weather advisory</div>
+              <div class="menu-subtitle">Heavy rain expected this week in Meghalaya</div>
+              </div>
+            <i class="fas fa-chevron-right"></i>
+            </div>
+          <div class="menu-item">
+            <div class="menu-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="menu-content">
+              <div class="menu-title">Road closure update</div>
+              <div class="menu-subtitle">NH6 maintenance delays near Guwahati</div>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </div>
+            </div>
+          </div>
+
+      <!-- Country Info Screen -->
+      <div class="screen" id="countryInfoScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')"><i class="fas fa-chevron-left"></i></button>
+          <h2>Country Info</h2>
+          <span></span>
+        </header>
+          <div class="menu-items">
+            <div class="menu-item">
+            <div class="menu-icon"><i class="fas fa-passport"></i></div>
+              <div class="menu-content">
+              <div class="menu-title">Entry requirements</div>
+              <div class="menu-subtitle">Passport, visa, and e-visa notes</div>
+                </div>
+              <i class="fas fa-chevron-right"></i>
+              </div>
+            <div class="menu-item">
+            <div class="menu-icon"><i class="fas fa-shield-heart"></i></div>
+              <div class="menu-content">
+              <div class="menu-title">Safety level</div>
+              <div class="menu-subtitle">Overall: Moderate • Keep to marked areas</div>
+              </div>
+              <i class="fas fa-chevron-right"></i>
+            </div>
+            </div>
+          </div>
+
+      <!-- Tips Screen -->
+      <div class="screen" id="tipsScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')"><i class="fas fa-chevron-left"></i></button>
+          <h2>Local Tips</h2>
+          <span></span>
+        </header>
+        <div class="menu-items">
+            <div class="menu-item">
+            <div class="menu-icon"><i class="fas fa-hands-praying"></i></div>
+              <div class="menu-content">
+              <div class="menu-title">Cultural etiquette</div>
+              <div class="menu-subtitle">Dress modestly at religious sites</div>
+              </div>
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          <div class="menu-item">
+            <div class="menu-icon"><i class="fas fa-user-shield"></i></div>
+            <div class="menu-content">
+              <div class="menu-title">Common scams</div>
+              <div class="menu-subtitle">Avoid unofficial guides and fee demands</div>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </div>
+        </div>
+          </div>
+
+      <!-- Tools Screen -->
+      <div class="screen" id="toolsScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')"><i class="fas fa-chevron-left"></i></button>
+          <h2>Tools</h2>
+          <span></span>
+        </header>
+        <div class="menu-items">
+          <div class="menu-item" onclick="alert('Currency converter coming soon')">
+            <div class="menu-icon"><i class="fas fa-coins"></i></div>
+            <div class="menu-content">
+              <div class="menu-title">Currency converter</div>
+              <div class="menu-subtitle">Quickly convert INR and more</div>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </div>
+          <div class="menu-item" onclick="alert('Tipping calculator coming soon')">
+            <div class="menu-icon"><i class="fas fa-calculator"></i></div>
+            <div class="menu-content">
+              <div class="menu-title">Tipping guide</div>
+              <div class="menu-subtitle">Restaurant & service norms</div>
+              </div>
+            <i class="fas fa-chevron-right"></i>
+              </div>
+          <div class="menu-item" onclick="alert('Documents hub coming soon')">
+            <div class="menu-icon"><i class="fas fa-folder-open"></i></div>
+            <div class="menu-content">
+              <div class="menu-title">Documents</div>
+              <div class="menu-subtitle">Keep your travel docs handy</div>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </div>
+        </div>
+      </div>
+      <!-- Location Screen -->
+      <div class="screen" id="locationScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')">
+            <i class="fas fa-chevron-left"></i>
+            </button>
+          <h2>Location & Map</h2>
+          <button class="refresh-btn" onclick="toggleTracking()">
+            <i class="fas fa-satellite-dish"></i>
+            </button>
+        </header>
+
+        <div class="location-content">
+          <div class="location-controls">
+            <div class="location-input-group">
+              <input type="text" id="locationSearch" placeholder="Search location..." class="location-input">
+              <button onclick="searchLocation()" class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+              <button type="button" onclick="getCurrentLocation()" class="gps-btn" title="Use GPS">
+                <i class="fas fa-location-arrow"></i>
+            </button>
+              <button type="button" onclick="requestCurrentLocation()" class="gps-btn" title="Update Location" style="background: #667eea;">
+                <i class="fas fa-map-marker-alt"></i>
+            </button>
+            <button type="button" onclick="refreshGeoFences()" class="refresh-btn" title="Refresh Geo-fences">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            </div>
+          </div>
+          
+          <div class="map-container">
+            <div class="map-loading" id="mapLoading">
+              <i class="fas fa-spinner"></i>
+              <p>Loading map...</p>
+            </div>
+            <div id="map"></div>
+          </div>
+          
+          <div class="location-status">
+            <div class="status-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Location tracking: Active</span>
+          </div>
+            <div class="status-item">
+              <i class="fas fa-shield-alt"></i>
+              <span>Safety zones: Enabled</span>
+        </div>
+      </div>
+
+          <!-- Incident Reporting Section -->
+          <div class="incident-reporting">
+            <h3 style="margin: 20px 0 15px 0; color: #1f2937; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i>
+              <span data-en="Report Incident" data-hi="घटना की रिपोर्ट करें">Report Incident</span>
+            </h3>
+            
+            <div class="incident-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-en="Incident Type" data-hi="घटना का प्रकार">Incident Type</label>
+                  <select id="incidentType" class="form-select">
+                    <option value="" data-en="Select incident type" data-hi="घटना का प्रकार चुनें">Select incident type</option>
+                    <option value="theft">Theft/Pickpocketing</option>
+                    <option value="harassment">Harassment</option>
+                    <option value="scam">Scam/Fraud</option>
+                    <option value="unsafe_area">Unsafe Area</option>
+                    <option value="transport_issue">Transport Issue</option>
+                    <option value="medical_emergency">Medical Emergency</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-en="Severity" data-hi="गंभीरता">Severity</label>
+                  <select id="incidentSeverity" class="form-select">
+                    <option value="" data-en="Select severity" data-hi="गंभीरता चुनें">Select severity</option>
+                    <option value="low" data-en="Low" data-hi="कम">Low</option>
+                    <option value="medium" data-en="Medium" data-hi="मध्यम">Medium</option>
+                    <option value="high" data-en="High" data-hi="उच्च">High</option>
+                    <option value="critical" data-en="Critical" data-hi="गंभीर">Critical</option>
+                  </select>
+        </div>
+      </div>
+
+              <div class="form-group">
+                <label class="form-label" data-en="Description" data-hi="विवरण">Description</label>
+                <textarea id="incidentDescription" class="form-textarea" placeholder="Describe what happened, when, and any relevant details..." rows="3"></textarea>
+              </div>
+              
+              <div class="form-row">
+                <button onclick="getCurrentLocationForIncident()" class="location-btn">
+                  <i class="fas fa-crosshairs"></i>
+                  <span data-en="Use Current Location" data-hi="वर्तमान स्थान का उपयोग करें">Use Current Location</span>
+                </button>
+                <button onclick="reportIncident()" class="report-btn">
+                  <i class="fas fa-flag"></i>
+                  <span data-en="Report Incident" data-hi="घटना की रिपोर्ट करें">Report Incident</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Reported Incidents List -->
+            <div class="reported-incidents" id="reportedIncidents">
+              <h4 style="margin: 20px 0 15px 0; color: #1f2937; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-map-pin" style="color: #dc2626;"></i>
+                Reported Incidents
+              </h4>
+              <div id="incidentsList" class="incidents-list">
+                <!-- Incidents will be populated here -->
+              </div>
+            </div>
+          </div>
+              </div>
+            </div>
+
+      <!-- Settings Screen -->
+      <div class="screen" id="settingsScreen">
+        <header class="screen-header">
+          <button class="back-btn" onclick="switchScreen('home')">
+            <i class="fas fa-chevron-left"></i>
+              </button>
+          <h2 data-en="Settings" data-hi="सेटिंग्स">Settings</h2>
+          <button class="refresh-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </header>
+
+        <div class="feature-grid" style="margin-top: 20px;">
+          <button class="tile-card" onclick="openPoliceDashboard()">
+            <div class="tile-icon" style="background: linear-gradient(135deg,#dc2626,#b91c1c)"><i class="fas fa-shield-alt"></i></div>
+            <div class="tile-title">Police Dashboard</div>
+            <div class="tile-sub">Authorized Access</div>
+              </button>
+        </div>
+
+        <div class="settings-content">
+          <div class="settings-section">
+            <h3 data-en="Account" data-hi="खाता">Account</h3>
+            <div class="setting-item" onclick="editProfile()">
+              <div class="setting-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="setting-info">
+                <h4 data-en="Profile" data-hi="प्रोफ़ाइल">Profile</h4>
+                <p>Edit your personal information</p>
+              </div>
+              <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="setting-item" onclick="manageDocuments()">
+              <div class="setting-icon">
+                <i class="fas fa-id-card"></i>
+              </div>
+              <div class="setting-info">
+                <h4 data-en="Documents" data-hi="दस्तावेज़">Documents</h4>
+                <p>Manage your travel documents</p>
+              </div>
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Privacy & Safety</h3>
+            <div class="setting-item">
+              <div class="setting-icon">
+                <i class="fas fa-location-arrow"></i>
+            </div>
+              <div class="setting-info">
+                <h4>Location Tracking</h4>
+                <p>Manage location sharing</p>
+            </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="locationToggle" checked>
+                <label for="locationToggle"></label>
+              </div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-icon">
+                <i class="fas fa-bell"></i>
+              </div>
+              <div class="setting-info">
+                <h4>Notifications</h4>
+                <p>Safety alerts and updates</p>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="notificationsToggle" checked>
+                <label for="notificationsToggle"></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Language & Region</h3>
+            <div class="setting-item" onclick="toggleLanguage()">
+              <div class="setting-icon">
+                <i class="fas fa-language"></i>
+              </div>
+              <div class="setting-info">
+                <h4 data-en="Language" data-hi="भाषा">Language</h4>
+                <p><span id="currentLanguage">English</span> • <span data-en="Switch to Hindi" data-hi="हिंदी में बदलें">Switch to Hindi</span></p>
+              </div>
+              <i class="fas fa-chevron-right"></i>
+            </div>
+              </div>
+            </div>
+              </div>
+
+      <!-- Emergency Contacts Modal -->
+      <div class="modal" id="emergencyModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Emergency Contacts</h3>
+            <button class="close-btn" onclick="closeEmergencyModal()">
+              <i class="fas fa-times"></i>
+            </button>
+            </div>
+          <div class="emergency-contacts-list">
+            <div class="emergency-contact">
+              <div class="contact-icon police">
+                <i class="fas fa-shield-alt"></i>
+          </div>
+              <div class="contact-info">
+                <h4>Police</h4>
+                <p>Shillong Police Station</p>
+                <span class="phone">+91 364 222 0000</span>
+        </div>
+              <button class="call-btn" onclick="callEmergency('+913642220000')">
+                <i class="fas fa-phone"></i>
+              </button>
+            </div>
+            <div class="emergency-contact">
+              <div class="contact-icon medical">
+                <i class="fas fa-ambulance"></i>
+              </div>
+              <div class="contact-info">
+                <h4>Medical Emergency</h4>
+                <p>Civil Hospital Shillong</p>
+                <span class="phone">+91 364 222 0001</span>
+              </div>
+              <button class="call-btn" onclick="callEmergency('+913642220001')">
+                <i class="fas fa-phone"></i>
+              </button>
+            </div>
+            <div class="emergency-contact">
+              <div class="contact-icon embassy">
+                <i class="fas fa-flag"></i>
+              </div>
+              <div class="contact-info">
+                <h4>Tourist Helpline</h4>
+                <p>24/7 Tourist Support</p>
+                <span class="phone">+91 11 1363</span>
+              </div>
+              <button class="call-btn" onclick="callEmergency('+91111363')">
+                <i class="fas fa-phone"></i>
+              </button>
+            </div>
+            <div class="emergency-contact">
+              <div class="contact-icon fire">
+                <i class="fas fa-fire-extinguisher"></i>
+              </div>
+              <div class="contact-info">
+                <h4>Fire Department</h4>
+                <p>Shillong Fire Station</p>
+                <span class="phone">+91 364 222 0002</span>
+              </div>
+              <button class="call-btn" onclick="callEmergency('+913642220002')">
+                <i class="fas fa-phone"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-target="home" onclick="switchScreen('home')">
+      <i class="fas fa-home"></i>
+      <span data-en="Home" data-hi="होम">Home</span>
+    </button>
+    <button class="nav-item" data-target="guide" onclick="switchScreen('guide')">
+      <i class="fas fa-compass"></i>
+      <span data-en="Guide" data-hi="गाइड">Guide</span>
+    </button>
+    <button class="nav-item" data-target="connect" onclick="switchScreen('connect')">
+      <i class="fas fa-users"></i>
+      <span data-en="Connect" data-hi="कनेक्ट">Connect</span>
+    </button>
+    <button class="nav-item" data-target="location" onclick="switchScreen('location')">
+      <i class="fas fa-map-marker-alt"></i>
+      <span data-en="Location" data-hi="स्थान">Location</span>
+    </button>
+    <button class="nav-item" data-target="settings" onclick="switchScreen('settings')">
+      <i class="fas fa-cog"></i>
+      <span data-en="Settings" data-hi="सेटिंग्स">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Leaflet Map JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script>
+    // Wait for QRCode library to load
+    window.addEventListener('load', function() {
+      console.log('QRCode library loaded:', typeof qrcode !== 'undefined');
+      console.log('QRCode generator loaded:', typeof qrcode !== 'undefined');
+    });
+  </script>
+  <script>
+    // Fallback QR code generation if library fails to load
+    window.fallbackQR = function(text, container) {
+      const qrContainer = document.getElementById(container);
+      if (qrContainer) {
+        qrContainer.innerHTML = `
+          <div style="text-align:center;padding:20px;border:2px dashed #ccc;border-radius:8px;background:#f9f9f9;">
+            <div style="font-size:14px;color:#333;margin-bottom:10px;font-weight:600;">📱 QR Code</div>
+            <div style="font-family:monospace;font-size:11px;word-break:break-all;background:#fff;padding:12px;border-radius:6px;border:1px solid #ddd;margin:8px 0;">${text}</div>
+            <div style="font-size:10px;color:#666;margin-top:8px;">Copy this URL to generate QR code</div>
+            <button onclick="copyToClipboard('${text}')" style="margin-top:8px;padding:6px 12px;background:#f97316;color:white;border:none;border-radius:4px;font-size:11px;">Copy URL</button>
+          </div>
+        `;
+      }
+    };
+  </script>
+  <script src="script.js"></script>
+  <script>
+    // Initialize default profile picture for new users
+    function initializeDefaultProfile() {
+      const cachedAvatar = localStorage.getItem('bv_avatar');
+      const defaultAvatar = 'assets/defaultprofile.png';
+      
+      if (!cachedAvatar) {
+        localStorage.setItem('bv_avatar', defaultAvatar);
+        console.log('✅ Initialized default profile picture');
+      }
+    }
+
+    // Check authentication on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeDefaultProfile(); // Initialize default profile first
+      checkAuthentication();
+      loadUserData();
+      // initializeMap() is now handled by script.js
+      renderAlertsFeed();
+      renderCountryInfo();
+      initSafetyPie();
+      updateTime();
+      setInterval(updateTime, 1000); // Update every second
+    });
+    
+    function checkAuthentication() {
+      // Dev bypass: allow loading when running locally or via file://
+      const isLocal = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+      if (isLocal) return;
+      const session = localStorage.getItem('touristSafetySession');
+      if (!session) {
+        window.location.href = 'auth.html';
+        return;
+      }
+      
+      try {
+        const sessionData = JSON.parse(session);
+        const now = Date.now();
+        
+        if (now - sessionData.loginTime >= sessionData.expiresIn) {
+          localStorage.removeItem('touristSafetySession');
+          localStorage.removeItem('currentUser');
+          window.location.href = 'auth.html';
+          return;
+        }
+      } catch (error) {
+        localStorage.removeItem('touristSafetySession');
+        localStorage.removeItem('currentUser');
+        window.location.href = 'auth.html';
+        return;
+      }
+    }
+    
+    function loadUserData() {
+      const userData = localStorage.getItem('currentUser');
+      const cachedAvatar = localStorage.getItem('bv_avatar');
+      const defaultAvatar = 'assets/defaultprofile.png';
+      
+      const userAvatar = document.getElementById('userAvatar');
+      const accountAvatar = document.getElementById('accountAvatar');
+      
+      if (cachedAvatar) {
+        if (userAvatar) userAvatar.src = cachedAvatar;
+        if (accountAvatar) accountAvatar.src = cachedAvatar;
+      } else {
+        // Use default profile picture if no cached avatar
+        if (userAvatar) userAvatar.src = defaultAvatar;
+        if (accountAvatar) accountAvatar.src = defaultAvatar;
+        
+        // Set default avatar in localStorage for new users
+        localStorage.setItem('bv_avatar', defaultAvatar);
+        console.log('✅ Set default profile picture for new user');
+      }
+      // hydrate account form if open
+      const bv = localStorage.getItem('bv_account');
+      if (bv) {
+        try {
+          const d = JSON.parse(bv);
+          const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+          setVal('accountName', d.name);
+          setVal('accountEmail', d.email);
+          setVal('accountPhone', d.phone);
+          setVal('accountDigitalId', d.digitalId);
+        } catch {}
+      }
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          updateUIWithUserData(user);
+        } catch (error) {
+          console.error('Error loading user data:', error);
+        }
+      }
+    }
+    
+    function updateUIWithUserData(user) {
+      const greeting = document.getElementById('userGreeting');
+      if (greeting) {
+        greeting.textContent = `Namaste! Welcome, ${user.name}`;
+      }
+      
+      const location = document.getElementById('userLocation');
+      if (location) {
+        location.textContent = user.location || 'Shillong, Meghalaya';
+      }
+    }
+    
+    function switchScreen(screenName) {
+      // Hide all screens
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(screen => screen.classList.remove('active'));
+      
+      // Show selected screen
+      const targetScreen = document.getElementById(screenName + 'Screen');
+      if (targetScreen) {
+        targetScreen.classList.add('active');
+      }
+      
+      // Update navigation
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => item.classList.remove('active'));
+      
+      const activeNavItem = document.querySelector(`[data-target="${screenName}"]`);
+      if (activeNavItem) {
+        activeNavItem.classList.add('active');
+      }
+
+      // Lazy render per screen
+      if (screenName === 'alertsFeed') renderAlertsFeed();
+      if (screenName === 'countryInfo') renderCountryInfo();
+      if (screenName === 'profile') syncProfileAvatar();
+    }
+    
+    function syncProfileAvatar() {
+      const cachedAvatar = localStorage.getItem('bv_avatar');
+      const defaultAvatar = 'assets/defaultprofile.png';
+      const userAvatar = document.getElementById('userAvatar');
+      const accountAvatar = document.getElementById('accountAvatar');
+      
+      if (cachedAvatar && accountAvatar) {
+        accountAvatar.src = cachedAvatar;
+      } else if (userAvatar && accountAvatar) {
+        accountAvatar.src = userAvatar.src;
+      } else if (accountAvatar) {
+        accountAvatar.src = defaultAvatar;
+      }
+    }
+    
+    function updateTime() {
+      const timeElement = document.getElementById('currentTime');
+      if (timeElement) {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: false
+        });
+        timeElement.textContent = timeString;
+      }
+    }
+    
+    function openEmergencyContacts() {
+      document.getElementById('emergencyModal').style.display = 'flex';
+    }
+    
+    function closeEmergencyModal() {
+      document.getElementById('emergencyModal').style.display = 'none';
+    }
+    
+    function callEmergency(phoneNumber) {
+      window.open(`tel:${phoneNumber}`, '_self');
+    }
+    
+    function logout() {
+      localStorage.removeItem('touristSafetySession');
+      localStorage.removeItem('currentUser');
+      // Keep the default profile picture for next login
+      const defaultAvatar = 'assets/defaultprofile.png';
+      localStorage.setItem('bv_avatar', defaultAvatar);
+      window.location.href = 'auth.html';
+    }
+    
+    // --- Button handlers (simple, safe defaults) ---
+    function openDigitalID() {
+      console.log('🔍 openDigitalID called');
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const userEmail = currentUser.email || 'anonymous';
+      const storageKey = `bv_travel_id_${userEmail}`;
+      const existingId = localStorage.getItem(storageKey);
+      if (existingId) {
+        // Show existing Travel ID
+        console.log('🔍 Showing existing Travel ID for user:', userEmail);
+        openTravelIdModal();
+      } else {
+        // Generate new Travel ID (one-time only)
+        console.log('🔍 Generating new Travel ID');
+        generateTravelID();
+        openTravelIdModal();
+      }
+    }
+    
+    function openSafetyScore() {
+      console.log('🔍 openSafetyScore called');
+      alert('Safety score details coming soon.');
+    }
+    
+    function openEmergency() {
+      console.log('🔍 openEmergency called');
+      // Ensure default profile picture is set for emergency access
+      const cachedAvatar = localStorage.getItem('bv_avatar');
+      if (!cachedAvatar) {
+        localStorage.setItem('bv_avatar', 'assets/defaultprofile.png');
+        console.log('✅ Set default profile picture for emergency access');
+      }
+      openEmergencyContacts();
+    }
+    
+    async function shareLocation() {
+      if (!navigator.geolocation) {
+        alert('Geolocation not supported on this device.');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        const shareText = `My live location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        if (navigator.share) {
+          navigator.share({ title: 'My Location', text: shareText });
+        } else {
+          prompt('Copy your location and share:', shareText);
+        }
+      }, () => alert('Unable to get current location.'));
+    }
+
+    // Initialize Chart.js pie for safety factors
+    let safetyPieChart = null;
+    const SAFETY_FACTORS = [
+      { key: 'police', label: 'Police Stations', score: 80, color: '#10b981' },
+      { key: 'hospitals', label: 'Hospitals', score: 90, color: '#3b82f6' },
+      { key: 'fire', label: 'Fire Stations', score: 60, color: '#f59e0b' },
+      { key: 'transport', label: 'Transportation', score: 70, color: '#ef4444' }
+    ];
+
+    function initSafetyPie() {
+      const ctx = document.getElementById('safetyPie');
+      if (!ctx || typeof Chart === 'undefined') return;
+      const data = {
+        labels: SAFETY_FACTORS.map(f => f.label),
+        datasets: [{
+          data: SAFETY_FACTORS.map(f => f.score),
+          backgroundColor: SAFETY_FACTORS.map(f => f.color),
+          borderWidth: 0
+        }]
+      };
+      safetyPieChart = new Chart(ctx, {
+        type: 'pie',
+        data,
+        options: {
+          plugins: { legend: { display: false } },
+          onClick: (evt, elements) => {
+            if (!elements || !elements.length) return;
+            const idx = elements[0].index;
+            const factor = SAFETY_FACTORS[idx];
+            openSafetyDetailPanel(factor);
+          }
+        }
+      });
+    }
+    
+    function refreshGuide() {
+      console.log('Guide refreshed');
+      alert('Guide updated for today.');
+    }
+    
+    function refreshConnections() {
+      console.log('Connections refreshed');
+      alert('Connections list refreshed.');
+    }
+    
+    function openLocalGuides() {
+      alert('Local guides listing coming soon.');
+    }
+    
+    function openTouristCommunity() {
+      alert('Tourist community coming soon.');
+    }
+    
+    function openFamilySharing() {
+      alert('Family sharing coming soon.');
+    }
+    
+    // Map helpers (basic India-only search)
+    async function searchLocation() {
+      const q = (document.getElementById('locationSearch') || {}).value || '';
+      if (!q.trim()) return;
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q + ', India')}`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+        const data = await res.json();
+        if (data && data.length && typeof L !== 'undefined') {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+          const mapEl = document.getElementById('map');
+          if (!mapEl || !mapEl._leaflet_id) {
+            // Map instance stored globally if not yet
+          }
+          // Find existing Leaflet map
+          const map = Object.values(L).find(v => v && v._leaflet_id && v.setView) || null;
+          // Fallback: create a new reference using the first created map
+          const maps = L && L.layerGroup ? null : null;
+          // Simpler: re-initialize quickly
+          const mapInstance = (function() { try { return L && L.map && L.map('map'); } catch(e) { return null; } })();
+          if (window._leaflet_map) {
+            window._leaflet_map.setView([lat, lon], 12);
+            L.marker([lat, lon]).addTo(window._leaflet_map);
+          } else if (mapInstance) {
+            // do nothing
+          }
+        } else {
+          alert('No results in India for that query.');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Search failed. Please try again.');
+      }
+    }
+    
+    function getCurrentLocation() {
+      if (!navigator.geolocation) {
+        alert('Geolocation not supported.');
+        return;
+      }
+      
+      // Show loading message
+      const button = event.target.closest('button');
+      const originalHTML = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      button.disabled = true;
+      
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        // Update global user location in script.js
+        if (window.updateUserLocationOnMap) {
+          // Update the global userLocation variable in script.js
+          window.userLocation = [coords.latitude, coords.longitude];
+          console.log('Manual location update:', window.userLocation);
+          
+          // Call script.js functions to update map and backend
+          window.updateUserLocationOnMap();
+          window.sendLocationUpdateToBackend();
+          window.updateLocationDisplay();
+        }
+        
+        // Update map view
+        if (window._leaflet_map) {
+          window._leaflet_map.setView([coords.latitude, coords.longitude], 13);
+        }
+        
+        // Show success message
+        showNotification('✅ Location updated successfully!', 'success');
+        
+        // Restore button
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+        
+      }, (error) => {
+        console.error('Location error:', error);
+        alert('Unable to fetch location. Please check your browser permissions.');
+        
+        // Restore button
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+    }
+    
+    function toggleTracking() {
+      alert('Tracking toggled.');
+    }
+
+    // Safety detail modal
+    function openSafetyDetailPanel(factor) {
+      const modal = document.getElementById('safetyDetailModal');
+      const title = document.getElementById('safetyDetailTitle');
+      const body = document.getElementById('safetyDetailBody');
+      if (!modal || !title || !body) return;
+      const details = {
+        police: { count: 5, radius: 5, note: 'Patrol points active in nearby areas.' },
+        hospitals: { count: 7, radius: 5, note: '24/7 emergency care available.' },
+        fire: { count: 3, radius: 7, note: 'Fast response within city limits.' },
+        transport: { count: 4, radius: 3, note: 'Major roads accessible within minutes.' }
+      };
+      const d = details[factor.key];
+      title.textContent = factor.label;
+      body.innerHTML = `
+        <div><strong>Proximity score:</strong> ${factor.score}%</div>
+        ${d ? `<div><strong>Nearby count:</strong> ${d.count} within ${d.radius} km</div><div>${d.note}</div>` : ''}
+        <button class="search-btn" style="width:auto;padding:10px 14px;margin-top:8px;" onclick="closeSafetyDetailPanel()">Close</button>
+      `;
+      modal.style.display = 'flex';
+    }
+
+    function closeSafetyDetailPanel() {
+      const modal = document.getElementById('safetyDetailModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    // Travel ID modal open/close
+    function openTravelIdModal() {
+      const modal = document.getElementById('travelIdModal');
+      if (modal) modal.style.display = 'flex';
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const userEmail = currentUser.email || 'anonymous';
+      const storageKey = `bv_travel_id_${userEmail}`;
+      const saved = localStorage.getItem(storageKey);
+      const regenerateBtn = document.getElementById('regenerateBtn');
+      
+      if (saved) {
+        document.getElementById('travelIdValue').textContent = saved;
+        document.getElementById('travelIdStatus').textContent = 'Active on-chain (demo)';
+        document.getElementById('travelIdHistory').textContent = 'Ready for hotel/airport check-ins';
+        
+        // Generate QR code with a small delay to ensure modal is fully rendered
+        setTimeout(() => {
+          renderQr(saved);
+        }, 100);
+        
+        // Hide regenerate button since ID already exists
+        if (regenerateBtn) regenerateBtn.style.display = 'none';
+      } else {
+        // Show regenerate button for first-time generation
+        if (regenerateBtn) regenerateBtn.style.display = 'block';
+      }
+    }
+    function closeTravelIdModal() {
+      const modal = document.getElementById('travelIdModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    // Demo blockchain generation (stub). Replace with real contract call later.
+    async function generateTravelID() {
+      // Get current user to create user-specific storage key
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const userEmail = currentUser.email || 'anonymous';
+      const storageKey = `bv_travel_id_${userEmail}`;
+      
+      // Check if Travel ID already exists for this specific user (one-time generation only)
+      const existingId = localStorage.getItem(storageKey);
+      if (existingId) {
+        console.log('Travel ID already exists for user:', userEmail, existingId);
+        return existingId;
+      }
+
+      // Generate unique ID using user data + multiple entropy sources
+      let base = 'Traveler';
+      try {
+        const u = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        // Use multiple unique factors for better uniqueness
+        const userData = (u.name || 'Traveler') + (u.email || '') + (u.phone || '');
+        const timestamp = Date.now();
+        const randomSalt = Math.random().toString(36).substring(2, 15);
+        const browserFingerprint = navigator.userAgent + navigator.language + screen.width + screen.height;
+        
+        base = userData + timestamp + randomSalt + browserFingerprint;
+        console.log('🔑 Generating Travel ID for user:', u.name || 'Traveler');
+      } catch (error) {
+        console.error('Error getting user data:', error);
+        // Fallback with maximum entropy
+        base = 'Traveler' + Date.now() + Math.random().toString(36) + navigator.userAgent;
+      }
+      
+      const hash = ethers.keccak256(ethers.toUtf8Bytes(base));
+      const travelId = 'TRAVEL-' + hash.slice(2, 10).toUpperCase() + '-' + hash.slice(10, 18).toUpperCase();
+      
+      console.log('🎫 Generated unique Travel ID:', travelId);
+
+      // TODO: call your smart contract method here using ethers.js provider/signer
+      // const provider = new ethers.BrowserProvider(window.ethereum);
+      // const signer = await provider.getSigner();
+      // const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+      // const tx = await contract.generateTravelId(hash, ...);
+      // await tx.wait();
+
+      localStorage.setItem(storageKey, travelId);
+      
+      // Store Travel ID in database
+      try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (currentUser.email) {
+          const response = await fetch('http://localhost:3001/api/db/blockchain-travel-ids', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              travelId: travelId,
+              userEmail: currentUser.email,
+              generatedAt: new Date().toISOString()
+            })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log(`✅ Travel ID ${result.action} in database successfully:`, result.message);
+          } else {
+            console.warn('⚠️ Failed to store Travel ID in database:', await response.text());
+          }
+        } else {
+          console.warn('⚠️ No user email found, Travel ID not stored in database');
+        }
+      } catch (error) {
+        console.error('❌ Error storing Travel ID in database:', error);
+      }
+      
+      // Update UI if modal is open
+      const valueEl = document.getElementById('travelIdValue');
+      const statusEl = document.getElementById('travelIdStatus');
+      const historyEl = document.getElementById('travelIdHistory');
+      
+      if (valueEl) valueEl.textContent = travelId;
+      if (statusEl) statusEl.textContent = 'Active on-chain (demo)';
+      if (historyEl) historyEl.textContent = 'Ready for hotel/airport check-ins';
+      
+      // Generate QR code with a small delay
+      setTimeout(() => {
+        renderQr(travelId);
+      }, 100);
+      
+      // Hide the regenerate button after generation
+      const regenerateBtn = document.getElementById('regenerateBtn');
+      if (regenerateBtn) regenerateBtn.style.display = 'none';
+      
+      return travelId;
+    }
+
+    // Function for manual regeneration (only available if no ID exists)
+    function regenerateTravelID() {
+      generateTravelID();
+    }
+    
+    // Function to clear existing Travel ID (for testing purposes)
+    function clearTravelID() {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const userEmail = currentUser.email || 'anonymous';
+      const storageKey = `bv_travel_id_${userEmail}`;
+      
+      localStorage.removeItem(storageKey);
+      console.log('🗑️ Travel ID cleared for user:', userEmail, '. You can now generate a new one.');
+      
+      // Update UI
+      const valueEl = document.getElementById('travelIdValue');
+      const statusEl = document.getElementById('travelIdStatus');
+      const historyEl = document.getElementById('travelIdHistory');
+      const regenerateBtn = document.getElementById('regenerateBtn');
+      
+      if (valueEl) valueEl.textContent = '—';
+      if (statusEl) statusEl.textContent = 'Not generated';
+      if (historyEl) historyEl.textContent = 'Click to generate your unique Travel ID';
+      if (regenerateBtn) regenerateBtn.style.display = 'block';
+      
+      // Clear QR code
+      const qrContainer = document.getElementById('qrContainer');
+      if (qrContainer) qrContainer.innerHTML = '';
+    }
+
+    // Copy to clipboard function
+    async function copyToClipboard(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          alert('URL copied to clipboard!');
+        } else {
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          document.execCommand('copy');
+          textArea.remove();
+          alert('URL copied to clipboard!');
+        }
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+        alert('Failed to copy URL. Please copy manually.');
+      }
+    }
+
+    function renderQr(value) {
+      const el = document.getElementById('qrContainer');
+      if (!el) {
+        console.error('QR container not found');
+        return;
+      }
+      
+      // Check if QR is already generated for this value
+      if (el.dataset.generatedValue === value && el.children.length > 0) {
+        console.log('QR already generated for this value');
+        return;
+      }
+      
+      // Clear container
+      el.innerHTML = '';
+      el.dataset.generatedValue = value;
+      
+      // payload could be a URL to your verifier app plus the id
+      const payload = `verify.html?id=${encodeURIComponent(value)}`;
+      console.log('Generating QR for:', payload);
+      
+      // Try multiple approaches to generate QR
+      function tryGenerateQR() {
+        // Check if QRCode library is available
+        if (typeof QRCode !== 'undefined') {
+          console.log('QRCode library is ready, generating QR...');
+          
+          try {
+            // Use QRCode.toDataURL for more reliable generation
+            QRCode.toDataURL(payload, {
+              width: 200,
+              margin: 2,
+              color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+              }
+            }, function (err, url) {
+              if (err) {
+                console.error('QR generation error:', err);
+                showFallbackQR(payload, el);
+              } else {
+                console.log('QR generated successfully');
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.border = '1px solid #ddd';
+                img.style.borderRadius = '8px';
+                img.style.maxWidth = '200px';
+                img.style.height = 'auto';
+                img.alt = 'Travel ID QR Code';
+                el.appendChild(img);
+              }
+            });
+          } catch (error) {
+            console.error('QR generation exception:', error);
+            showFallbackQR(payload, el);
+          }
+        } else if (typeof qrcode !== 'undefined') {
+          // Try alternative QR library
+          console.log('Using alternative QR library...');
+          try {
+            const qr = qrcode(0, 'M');
+            qr.addData(payload);
+            qr.make();
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 200;
+            canvas.width = size;
+            canvas.height = size;
+            
+            const cellSize = size / qr.getModuleCount();
+            
+            for (let row = 0; row < qr.getModuleCount(); row++) {
+              for (let col = 0; col < qr.getModuleCount(); col++) {
+                ctx.fillStyle = qr.isDark(row, col) ? '#000000' : '#FFFFFF';
+                ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+              }
+            }
+            
+            canvas.style.border = '1px solid #ddd';
+            canvas.style.borderRadius = '8px';
+            canvas.style.maxWidth = '200px';
+            canvas.style.height = 'auto';
+            el.appendChild(canvas);
+            console.log('Alternative QR generated successfully');
+          } catch (error) {
+            console.error('Alternative QR generation failed:', error);
+            showFallbackQR(payload, el);
+          }
+        } else {
+          console.log('No QR library available, using fallback');
+          showFallbackQR(payload, el);
+        }
+      }
+      
+      // Show fallback QR representation
+      function showFallbackQR(payload, container) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:20px;border:2px dashed #ccc;border-radius:8px;background:#f9f9f9;">
+            <div style="font-size:14px;color:#333;margin-bottom:10px;font-weight:600;">📱 QR Code</div>
+            <div style="font-family:monospace;font-size:11px;word-break:break-all;background:#fff;padding:12px;border-radius:6px;border:1px solid #ddd;margin:8px 0;">${payload}</div>
+            <div style="font-size:10px;color:#666;margin-top:8px;">Copy this URL to generate QR code</div>
+            <button onclick="copyToClipboard('${payload}')" style="margin-top:8px;padding:6px 12px;background:#f97316;color:white;border:none;border-radius:4px;font-size:11px;">Copy URL</button>
+          </div>
+        `;
+      }
+      
+      // Try to generate QR immediately
+      tryGenerateQR();
+    }
+    
+    // Account screen helpers
+    function openFilePicker() {
+      const input = document.getElementById('avatarInput');
+      if (input) input.click();
+    }
+
+    function handlePhotoChange(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const url = e.target && e.target.result;
+        const avatar = document.getElementById('accountAvatar');
+        const userAvatar = document.getElementById('userAvatar');
+        if (avatar && typeof url === 'string') avatar.src = url;
+        if (userAvatar && typeof url === 'string') userAvatar.src = url;
+        localStorage.setItem('bv_avatar', url);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function generateDigitalId() {
+      const id = 'IND-' + Math.random().toString(36).slice(2,8).toUpperCase() + '-' + Date.now().toString().slice(-4);
+      const el = document.getElementById('accountDigitalId');
+      if (el) el.value = id;
+    }
+
+    function saveAccount() {
+      const data = {
+        name: (document.getElementById('accountName') || {}).value || '',
+        email: (document.getElementById('accountEmail') || {}).value || '',
+        phone: (document.getElementById('accountPhone') || {}).value || '',
+        digitalId: (document.getElementById('accountDigitalId') || {}).value || ''
+      };
+      localStorage.setItem('bv_account', JSON.stringify(data));
+      // update current user to reflect name on Home
+      const current = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      localStorage.setItem('currentUser', JSON.stringify({ ...current, ...data }));
+      updateUIWithUserData({ ...current, ...data });
+      alert('Account saved');
+      toggleEditProfile(false);
+    }
+
+    function toggleEditProfile(forceEnable) {
+      const inputs = ['accountName','accountEmail','accountPhone'].map(id => document.getElementById(id)).filter(Boolean);
+      const saveBtn = document.getElementById('saveBtn');
+      const enable = typeof forceEnable === 'boolean' ? forceEnable : (inputs[0] && inputs[0].disabled);
+      inputs.forEach(el => { el.disabled = !enable; });
+      if (saveBtn) saveBtn.disabled = !enable;
+    }
+    
+    // userLocationMarker is now handled by script.js
+    // locationWatchId is now handled by script.js
+
+    // Map initialization is now handled by script.js
+    function initializeMap() {
+      console.log('HTML initializeMap called - delegating to script.js');
+      // Call the script.js version if it exists
+      if (typeof window.initializeMapScript === 'function') {
+        window.initializeMapScript();
+      }
+    }
+
+    // Load restricted areas from police dashboard
+    function loadRestrictedAreas(map) {
+      const savedFences = localStorage.getItem('bon_voyage_geo_fences');
+      if (savedFences) {
+        const geoFences = JSON.parse(savedFences);
+        
+        geoFences.forEach(fence => {
+          if (fence.active) {
+            const circle = L.circle([fence.lat, fence.lng], {
+              color: '#dc2626',
+              fillColor: '#dc2626',
+              fillOpacity: 0.3,
+              radius: fence.radius,
+              weight: 2
+            }).addTo(map);
+
+            circle.bindPopup(`
+              <div style="text-align: center;">
+                <strong style="color: #dc2626;">⚠️ Restricted Area</strong><br>
+                <strong>${fence.name}</strong><br>
+                ${fence.description}<br>
+                <small>Radius: ${fence.radius}m</small>
+              </div>
+            `);
+          }
+        });
+      }
+    }
+
+    // Start location tracking
+    function startLocationTracking(map) {
+      console.log('Location tracking is now handled by script.js');
+      // This function is kept for compatibility but location tracking is handled by script.js
+    }
+
+    // Update user location marker
+    function updateUserLocation(map, lat, lng) {
+      // This function is now handled by script.js
+      // Update the global userLocation variable if it exists
+      if (typeof userLocation !== 'undefined') {
+        userLocation = [lat, lng];
+        console.log('Location updated from HTML:', userLocation);
+      }
+    }
+
+    // Check if user is in restricted area
+    function checkRestrictedAreas(lat, lng) {
+      const savedFences = localStorage.getItem('bon_voyage_geo_fences');
+      if (savedFences) {
+        const geoFences = JSON.parse(savedFences);
+        
+        geoFences.forEach(fence => {
+          if (fence.active) {
+            const distance = getDistanceFromLatLonInMeters(lat, lng, fence.lat, fence.lng);
+            
+            if (distance <= fence.radius) {
+              // User entered restricted area
+              showRestrictedAreaAlert(fence);
+            }
+          }
+        });
+      }
+    }
+
+    // Show restricted area alert
+    function showRestrictedAreaAlert(fence) {
+      // Check if alert was already shown recently
+      const lastAlert = localStorage.getItem(`last_alert_${fence.id}`);
+      const now = Date.now();
+      
+      if (lastAlert && (now - parseInt(lastAlert)) < 300000) { // 5 minutes
+        return; // Don't show alert again within 5 minutes
+      }
+      
+      // Store alert time
+      localStorage.setItem(`last_alert_${fence.id}`, now.toString());
+      
+      // Show alert
+      const alertMessage = `
+        <div style="text-align: center; padding: 20px;">
+          <div style="font-size: 48px; color: #dc2626; margin-bottom: 15px;">⚠️</div>
+          <h3 style="color: #dc2626; margin-bottom: 10px;">Restricted Area Alert</h3>
+          <p style="margin-bottom: 15px;"><strong>${fence.name}</strong></p>
+          <p style="color: #6b7280; margin-bottom: 20px;">${fence.description}</p>
+          <p style="font-size: 14px; color: #dc2626; font-weight: 600;">Please leave this area immediately</p>
+        </div>
+      `;
+      
+      // Create and show modal
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style.display = 'flex';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+          <div class="modal-header">
+            <h3>🚨 Restricted Area</h3>
+            <button class="close-btn" onclick="this.closest('.modal').remove()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            ${alertMessage}
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Auto-remove after 10 seconds
+      setTimeout(() => {
+        if (modal.parentNode) {
+          modal.remove();
+        }
+      }, 10000);
+    }
+
+    // Calculate distance between two points
+    function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // Radius of the earth in meters
+      const dLat = deg2rad(lat2 - lat1);
+      const dLon = deg2rad(lon2 - lon1);
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const d = R * c; // Distance in meters
+      return d;
+    }
+
+    function deg2rad(deg) {
+      return deg * (Math.PI/180);
+    }
+
+    // Open police dashboard
+    function openPoliceDashboard() {
+      window.open('police-dashboard.html', '_blank');
+    }
+
+    // Close modal function
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Attractions data from Excel file with real Google ratings
+    const attractionsData = [
+      {
+        name: "Fatehpur Sikri",
+        description: "A must-visit attraction in Uttar Pradesh",
+        rating: 4.7,
+        location: "Uttar Pradesh",
+        mapsLink: "https://goo.gl/maps/TTTTTTTTTT",
+        category: "Attractions"
+      },
+      {
+        name: "Chunar Fort",
+        description: "A must-visit attraction in Uttar Pradesh",
+        rating: 4.7,
+        location: "Uttar Pradesh",
+        mapsLink: "https://goo.gl/maps/TTTTTTTTTT",
+        category: "Attractions"
+      },
+      {
+        name: "Kashi Vishwanath Temple",
+        description: "A must-visit attraction in Uttar Pradesh",
+        rating: 4.7,
+        location: "Uttar Pradesh",
+        mapsLink: "https://goo.gl/maps/TTTTTTTTTT",
+        category: "Attractions"
+      },
+      {
+        name: "Chhatrapati Shivaji Maharaj Terminus",
+        description: "A must-visit attraction in Maharashtra",
+        rating: 4.7,
+        location: "Maharashtra",
+        mapsLink: "https://goo.gl/maps/TTTTTTTTTT",
+        category: "Attractions"
+      },
+      {
+        name: "Elephanta Island",
+        description: "A must-visit attraction in Maharashtra",
+        rating: 4.7,
+        location: "Maharashtra",
+        mapsLink: "https://goo.gl/maps/TTTTTTTTTT",
+        category: "Attractions"
+      },
+      {
+        name: "Khandala",
+        description: "A must-visit attraction in Maharashtra",
+        rating: 4.7,
+        location: "Maharashtra",
+        mapsLink: "https://goo.gl/maps/TTTTTTTTTT",
+        category: "Attractions"
+      }
+    ];
+
+    // Restaurants data from Excel file with real Google ratings
+    const restaurantsData = [
+      {
+        name: "The Mughal's Dastarkhwan",
+        description: "Authentic Indian cuisine in Uttar Pradesh",
+        rating: 4.7,
+        cuisine: "Indian",
+        priceRange: "₹800-1200",
+        location: "Uttar Pradesh",
+        mapsLink: "https://goo.gl/maps/RRRRRRRRRR"
+      },
+      {
+        name: "Sanjay Restaurant",
+        description: "Authentic Indian cuisine in Uttar Pradesh",
+        rating: 4.7,
+        cuisine: "Indian",
+        priceRange: "₹600-900",
+        location: "Uttar Pradesh",
+        mapsLink: "https://goo.gl/maps/RRRRRRRRRR"
+      },
+      {
+        name: "Baba Biryani",
+        description: "Authentic Indian cuisine in Uttar Pradesh",
+        rating: 4.7,
+        cuisine: "Indian",
+        priceRange: "₹500-800",
+        location: "Uttar Pradesh",
+        mapsLink: "https://goo.gl/maps/RRRRRRRRRR"
+      },
+      {
+        name: "Karim's",
+        description: "Authentic Indian cuisine in Maharashtra",
+        rating: 4.7,
+        cuisine: "Indian",
+        priceRange: "₹700-1100",
+        location: "Maharashtra",
+        mapsLink: "https://goo.gl/maps/RRRRRRRRRR"
+      },
+      {
+        name: "Moti Mahal",
+        description: "Authentic Indian cuisine in Maharashtra",
+        rating: 4.7,
+        cuisine: "Indian",
+        priceRange: "₹650-950",
+        location: "Maharashtra",
+        mapsLink: "https://goo.gl/maps/RRRRRRRRRR"
+      }
+    ];
+
+    // Transport data
+    const transportData = [
+      {
+        type: "Taxi Services",
+        services: [
+          {
+            name: "Ola Cabs",
+            description: "Reliable taxi service with multiple vehicle options",
+            waitTime: "5-10 minutes",
+            price: "₹8-15/km",
+            booking: "Book via Ola app"
+          },
+          {
+            name: "Uber",
+            description: "Global ride-sharing service",
+            waitTime: "3-8 minutes",
+            price: "₹10-18/km",
+            booking: "Book via Uber app"
+          }
+        ]
+      },
+      {
+        type: "Public Transport",
+        services: [
+          {
+            name: "Delhi Metro",
+            description: "Fast and efficient metro system",
+            waitTime: "2-5 minutes",
+            price: "₹10-60",
+            booking: "Smart card or token"
+          },
+          {
+            name: "Mumbai Local",
+            description: "Suburban railway network",
+            waitTime: "3-7 minutes",
+            price: "₹5-50",
+            booking: "Season ticket or smart card"
+          }
+        ]
+      },
+      {
+        type: "Ride Sharing",
+        services: [
+          {
+            name: "Rapido",
+            description: "Bike taxi service for quick rides",
+            waitTime: "2-5 minutes",
+            price: "₹3-8/km",
+            booking: "Book via Rapido app"
+          },
+          {
+            name: "BlaBlaCar",
+            description: "Car pooling for intercity travel",
+            waitTime: "Scheduled",
+            price: "₹2-5/km",
+            booking: "Book via BlaBlaCar app"
+          }
+        ]
+      }
+    ];
+
+    // Culture data
+    const cultureData = [
+      {
+        category: "Local Customs",
+        items: [
+          {
+            title: "Greetings",
+            content: "Namaste with folded hands is the traditional greeting. Remove shoes before entering homes and temples."
+          },
+          {
+            title: "Dining Etiquette",
+            content: "Use right hand for eating. It's polite to try everything offered. Don't point feet at people or food."
+          }
+        ]
+      },
+      {
+        category: "Things to Avoid",
+        items: [
+          {
+            title: "Dress Code",
+            content: "Avoid revealing clothing in religious places. Cover shoulders and knees when visiting temples."
+          },
+          {
+            title: "Photography",
+            content: "Ask permission before photographing people. Some religious sites prohibit photography."
+          }
+        ]
+      },
+      {
+        category: "Traditional Foods",
+        items: [
+          {
+            title: "Must-Try Dishes",
+            content: "Biryani, Butter Chicken, Masala Dosa, Chole Bhature, Rogan Josh, and regional specialties."
+          },
+          {
+            title: "Street Food",
+            content: "Try Pani Puri, Vada Pav, Chaat, Samosa, and local street delicacies from clean vendors."
+          }
+        ]
+      },
+      {
+        category: "Festivals & Events",
+        items: [
+          {
+            title: "Major Festivals",
+            content: "Diwali (October/November), Holi (March), Eid, Christmas, and regional festivals throughout the year."
+          },
+          {
+            title: "Cultural Events",
+            content: "Attend local fairs, temple festivals, and cultural performances for authentic experiences."
+          }
+        ]
+      }
+    ];
+
+    // Open attractions modal
+    function openAttractions() {
+      const modal = document.getElementById('attractionsModal');
+      const list = document.getElementById('attractionsList');
+      
+      list.innerHTML = attractionsData.map(attraction => `
+        <div class="attraction-item" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: #f9fafb;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <h4 style="margin: 0 0 8px 0; color: #1f2937; font-size: 18px;">${attraction.name}</h4>
+              <p style="margin: 0; color: #6b7280; font-size: 14px;">${attraction.description}</p>
+            </div>
+            <div style="text-align: right;">
+              <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                <i class="fas fa-star" style="color: #fbbf24;"></i>
+                <span style="font-weight: 600; color: #1f2937;">${attraction.rating}/5</span>
+              </div>
+              <span style="background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 6px; font-size: 12px;">${attraction.category}</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="color: #6b7280; font-size: 14px;">
+              <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>${attraction.location}
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <a href="${attraction.mapsLink}" target="_blank" style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+                <i class="fas fa-map" style="margin-right: 4px;"></i>Directions
+              </a>
+              <button onclick="showAttractionDetails('${attraction.name}')" style="background: #10b981; color: white; padding: 8px 12px; border-radius: 6px; border: none; font-size: 12px; cursor: pointer;">
+                <i class="fas fa-info-circle" style="margin-right: 4px;"></i>Details
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      modal.style.display = 'flex';
+    }
+
+    // Open restaurants modal
+    function openRestaurants() {
+      const modal = document.getElementById('restaurantsModal');
+      const list = document.getElementById('restaurantsList');
+      
+      list.innerHTML = restaurantsData.map(restaurant => `
+        <div class="restaurant-item" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: #f9fafb;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <h4 style="margin: 0 0 8px 0; color: #1f2937; font-size: 18px;">${restaurant.name}</h4>
+              <p style="margin: 0; color: #6b7280; font-size: 14px;">${restaurant.description}</p>
+            </div>
+            <div style="text-align: right;">
+              <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                <i class="fas fa-star" style="color: #fbbf24;"></i>
+                <span style="font-weight: 600; color: #1f2937;">${restaurant.rating}/5</span>
+              </div>
+              <span style="background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 6px; font-size: 12px;">${restaurant.cuisine}</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="color: #6b7280; font-size: 14px;">
+              <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>${restaurant.location}
+            </div>
+            <div style="color: #059669; font-weight: 600; font-size: 14px;">
+              <i class="fas fa-rupee-sign" style="margin-right: 4px;"></i>${restaurant.priceRange}
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <a href="${restaurant.mapsLink}" target="_blank" style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+              <i class="fas fa-map" style="margin-right: 4px;"></i>Directions
+            </a>
+            <button onclick="showRestaurantDetails('${restaurant.name}')" style="background: #f97316; color: white; padding: 8px 12px; border-radius: 6px; border: none; font-size: 12px; cursor: pointer;">
+              <i class="fas fa-utensils" style="margin-right: 4px;"></i>Menu
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      modal.style.display = 'flex';
+    }
+
+    // Open transport modal
+    function openTransport() {
+      const modal = document.getElementById('transportModal');
+      const list = document.getElementById('transportList');
+      
+      list.innerHTML = transportData.map(transport => `
+        <div class="transport-category" style="margin-bottom: 24px;">
+          <h4 style="margin: 0 0 16px 0; color: #1f2937; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-${transport.type === 'Taxi Services' ? 'taxi' : transport.type === 'Public Transport' ? 'train' : 'car'}"></i>
+            ${transport.type}
+          </h4>
+          ${transport.services.map(service => `
+            <div class="service-item" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 12px; background: #f9fafb;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div>
+                  <h5 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px;">${service.name}</h5>
+                  <p style="margin: 0; color: #6b7280; font-size: 14px;">${service.description}</p>
+                </div>
+                <div style="text-align: right;">
+                  <div style="color: #059669; font-weight: 600; font-size: 14px; margin-bottom: 4px;">
+                    <i class="fas fa-clock" style="margin-right: 4px;"></i>${service.waitTime}
+                  </div>
+                  <div style="color: #1f2937; font-weight: 600; font-size: 14px;">
+                    <i class="fas fa-rupee-sign" style="margin-right: 4px;"></i>${service.price}
+                  </div>
+                </div>
+              </div>
+              <div style="background: #dbeafe; color: #1e40af; padding: 8px 12px; border-radius: 6px; font-size: 14px;">
+                <i class="fas fa-mobile-alt" style="margin-right: 6px;"></i>${service.booking}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+      
+      modal.style.display = 'flex';
+    }
+
+    // Open culture modal
+    function openCulture() {
+      const modal = document.getElementById('cultureModal');
+      const list = document.getElementById('cultureList');
+      
+      list.innerHTML = cultureData.map(category => `
+        <div class="culture-category" style="margin-bottom: 24px;">
+          <h4 style="margin: 0 0 16px 0; color: #1f2937; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-${category.category === 'Local Customs' ? 'handshake' : category.category === 'Things to Avoid' ? 'exclamation-triangle' : category.category === 'Traditional Foods' ? 'utensils' : 'calendar'}"></i>
+            ${category.category}
+          </h4>
+          ${category.items.map(item => `
+            <div class="culture-item" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 12px; background: #f9fafb;">
+              <h5 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px;">${item.title}</h5>
+              <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.5;">${item.content}</p>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+      
+      modal.style.display = 'flex';
+    }
+
+    // Open recommendations modal
+    function openRecommendations() {
+      const modal = document.getElementById('recommendationsModal');
+      const list = document.getElementById('recommendationsList');
+      
+      // Get top 5 highest rated attractions
+      const topAttractions = attractionsData
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 5);
+      
+      list.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px;">
+          <h4 style="margin: 0 0 8px 0; color: #92400e;">🌟 Today's Top Picks</h4>
+          <p style="margin: 0; color: #92400e; font-size: 14px;">Highest-rated attractions based on user reviews</p>
+        </div>
+        ${topAttractions.map((attraction, index) => `
+          <div class="recommendation-item" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: #f9fafb; position: relative;">
+            <div style="position: absolute; top: 12px; right: 12px; background: #f59e0b; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+              #${index + 1}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <div style="margin-right: 60px;">
+                <h4 style="margin: 0 0 8px 0; color: #1f2937; font-size: 18px;">${attraction.name}</h4>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">${attraction.description}</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+                  <i class="fas fa-star" style="color: #fbbf24;"></i>
+                  <span style="font-weight: 600; color: #1f2937;">${attraction.rating}/5</span>
+                </div>
+                <span style="background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 6px; font-size: 12px;">${attraction.category}</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="color: #6b7280; font-size: 14px;">
+                <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>${attraction.location}
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <a href="${attraction.mapsLink}" target="_blank" style="background: #3b82f6; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+                  <i class="fas fa-map" style="margin-right: 4px;"></i>Directions
+                </a>
+                <button onclick="showAttractionDetails('${attraction.name}')" style="background: #10b981; color: white; padding: 8px 12px; border-radius: 6px; border: none; font-size: 12px; cursor: pointer;">
+                  <i class="fas fa-info-circle" style="margin-right: 4px;"></i>Details
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+        <div style="text-align: center; margin-top: 20px;">
+          <button onclick="openAttractions()" style="background: #8b5cf6; color: white; padding: 12px 24px; border-radius: 8px; border: none; font-size: 14px; cursor: pointer;">
+            <i class="fas fa-list" style="margin-right: 8px;"></i>View All Attractions
+          </button>
+        </div>
+      `;
+      
+      modal.style.display = 'flex';
+    }
+
+    // Show attraction details
+    function showAttractionDetails(name) {
+      const attraction = attractionsData.find(a => a.name === name);
+      if (attraction) {
+        alert(`${attraction.name}\n\n${attraction.description}\n\nRating: ${attraction.rating}/5\nLocation: ${attraction.location}\nCategory: ${attraction.category}\n\nOperating Hours: 9:00 AM - 6:00 PM\nEntry Fee: ₹50-500 (varies by location)\nBest Time to Visit: Early morning or late afternoon`);
+      }
+    }
+
+    // Show restaurant details
+    function showRestaurantDetails(name) {
+      const restaurant = restaurantsData.find(r => r.name === name);
+      if (restaurant) {
+        alert(`${restaurant.name}\n\n${restaurant.description}\n\nRating: ${restaurant.rating}/5\nCuisine: ${restaurant.cuisine}\nPrice Range: ${restaurant.priceRange}\nLocation: ${restaurant.location}\n\nPopular Dishes: Signature specialties and local favorites\nOperating Hours: 11:00 AM - 11:00 PM\nReservation: Recommended for dinner`);
+      }
+    }
+
+    // Refresh guide function
+    function refreshGuide() {
+      // Simulate refreshing guide data
+      console.log('Refreshing guide data...');
+      // In a real app, this would fetch fresh data from the server
+      alert('Guide data refreshed!');
+    }
+
+    // Clean up map resources
+    function cleanupMap() {
+      // Location cleanup is now handled by script.js
+      
+      // userLocationMarker cleanup is now handled by script.js
+      
+      if (window._leaflet_map) {
+        window._leaflet_map.remove();
+        window._leaflet_map = null;
+      }
+    }
+
+    // Enhanced screen switching with map cleanup
+    function switchScreen(screenId) {
+      // Clean up map when leaving location screen
+      if (document.getElementById('locationScreen').style.display !== 'none') {
+        cleanupMap();
+      }
+      
+      // Hide all screens
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(screen => {
+        screen.style.display = 'none';
+      });
+      
+      // Show target screen
+      const targetScreen = document.getElementById(screenId + 'Screen');
+      if (targetScreen) {
+        targetScreen.style.display = 'block';
+        
+        // Map initialization is now handled by script.js
+        if (screenId === 'location') {
+          console.log('Switching to location screen - map handled by script.js');
+        }
+      }
+      
+      // Update navigation
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.target === screenId) {
+          item.classList.add('active');
+        }
+      });
+    }
+
+    // ------- Travel Alerts (sample local data) -------
+    const ALERT_LEVEL = {
+      info: { icon: 'fa-circle-info', color: '#2563eb', label: 'Info' },
+      warn: { icon: 'fa-triangle-exclamation', color: '#f59e0b', label: 'Warning' },
+      critical: { icon: 'fa-radiation', color: '#dc2626', label: 'Critical' }
+    };
+
+    const sampleAlerts = [
+      { id: 'a1', level: 'warn', title: 'Heavy Rain Advisory', detail: 'Orange alert issued for Meghalaya through Friday.', time: 'Today • 09:10' },
+      { id: 'a2', level: 'info', title: 'Road Works', detail: 'NH6 maintenance near Khanapara; expect delays.', time: 'Today • 07:30' },
+      { id: 'a3', level: 'critical', title: 'Flash Flood Risk (Localised)', detail: 'Avoid low-lying trails around Elephant Falls.', time: 'Yesterday • 19:05' }
+    ];
+
+    function renderAlertsFeed() {
+      const list = document.getElementById('alertsFeedList');
+      if (!list) return;
+      list.innerHTML = '';
+      sampleAlerts.forEach(a => {
+        const meta = ALERT_LEVEL[a.level] || ALERT_LEVEL.info;
+        const item = document.createElement('div');
+        item.className = 'menu-item';
+        item.innerHTML = `
+          <div class="menu-icon" style="background: ${meta.color};"><i class="fas ${meta.icon}"></i></div>
+          <div class="menu-content">
+            <div class="menu-title">${a.title}</div>
+            <div class="menu-subtitle">${a.detail} • ${a.time}</div>
+          </div>
+          <i class="fas fa-chevron-right"></i>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    // ------- Country Info (sample local data) -------
+    const countryInfo = {
+      name: 'India',
+      safetyLevel: 'Moderate',
+      entry: [
+        'Passport valid 6+ months',
+        'E-visa available for many nationalities',
+        'Carry digital and printed copies of visa'
+      ],
+      dos: [
+        'Dress modestly at religious sites',
+        'Use official taxis or app cabs',
+        'Drink bottled water only'
+      ],
+      donts: [
+        'Avoid unofficial guides',
+        'Do not photograph restricted areas',
+        'Avoid isolated areas after dark'
+      ],
+      emergency: {
+        police: '100', ambulance: '102', fire: '101', helpline: '1363'
+      }
+    };
+
+    function renderCountryInfo() {
+      const container = document.querySelector('#countryInfoScreen .menu-items');
+      if (!container) return;
+      container.innerHTML = '';
+      const sections = [
+        { icon: 'fa-passport', title: 'Entry requirements', lines: countryInfo.entry },
+        { icon: 'fa-shield-heart', title: `Safety level • ${countryInfo.safetyLevel}`, lines: ['Stay in marked areas; keep valuables secure.'] },
+        { icon: 'fa-handshake-angle', title: "Do's", lines: countryInfo.dos },
+        { icon: 'fa-ban', title: "Don'ts", lines: countryInfo.donts },
+        { icon: 'fa-phone', title: 'Emergency numbers', lines: [
+            `Police: ${countryInfo.emergency.police}`,
+            `Ambulance: ${countryInfo.emergency.ambulance}`,
+            `Fire: ${countryInfo.emergency.fire}`,
+            `Tourist Helpline: ${countryInfo.emergency.helpline}`
+          ] }
+      ];
+      sections.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'menu-item';
+        item.innerHTML = `
+          <div class="menu-icon"><i class="fas ${s.icon}"></i></div>
+          <div class="menu-content">
+            <div class="menu-title">${s.title}</div>
+            <div class="menu-subtitle">${s.lines.join(' • ')}</div>
+          </div>
+          <i class="fas fa-chevron-right"></i>
+        `;
+        container.appendChild(item);
+      });
+    }
+    
+    // User's current state (will be detected from location)
+    let userCurrentState = null;
+
+    // State detection based on coordinates
+    function detectStateFromCoordinates(lat, lng) {
+      // Maharashtra coordinates (approximate bounds)
+      if (lat >= 15.6 && lat <= 22.0 && lng >= 72.6 && lng <= 80.9) {
+        return 'Maharashtra';
+      }
+      // Uttar Pradesh coordinates (approximate bounds)
+      else if (lat >= 23.6 && lat <= 31.0 && lng >= 77.0 && lng <= 84.6) {
+        return 'Uttar Pradesh';
+      }
+      // Delhi coordinates (approximate bounds)
+      else if (lat >= 28.4 && lat <= 28.9 && lng >= 76.8 && lng <= 77.3) {
+        return 'Delhi';
+      }
+      // Rajasthan coordinates (approximate bounds)
+      else if (lat >= 23.0 && lat <= 30.1 && lng >= 69.3 && lng <= 78.1) {
+        return 'Rajasthan';
+      }
+      // Karnataka coordinates (approximate bounds)
+      else if (lat >= 11.5 && lat <= 18.4 && lng >= 74.0 && lng <= 78.6) {
+        return 'Karnataka';
+      }
+      // Tamil Nadu coordinates (approximate bounds)
+      else if (lat >= 8.0 && lat <= 13.3 && lng >= 76.2 && lng <= 80.3) {
+        return 'Tamil Nadu';
+      }
+      // Kerala coordinates (approximate bounds)
+      else if (lat >= 8.2 && lat <= 12.8 && lng >= 74.8 && lng <= 77.3) {
+        return 'Kerala';
+      }
+      // Punjab coordinates (approximate bounds)
+      else if (lat >= 29.5 && lat <= 32.3 && lng >= 73.9 && lng <= 76.9) {
+        return 'Punjab';
+      }
+      // West Bengal coordinates (approximate bounds)
+      else if (lat >= 21.6 && lat <= 27.2 && lng >= 85.8 && lng <= 89.9) {
+        return 'West Bengal';
+      }
+      // Gujarat coordinates (approximate bounds)
+      else if (lat >= 20.1 && lat <= 24.7 && lng >= 68.2 && lng <= 74.5) {
+        return 'Gujarat';
+      }
+      // Default fallback
+      else {
+        return 'India';
+      }
+    }
+
+    // Update user's state when location is detected
+    function updateUserState(lat, lng) {
+      const detectedState = detectStateFromCoordinates(lat, lng);
+      if (detectedState !== userCurrentState) {
+        userCurrentState = detectedState;
+        console.log(`User location detected: ${userCurrentState}`);
+        
+        // Update main page location display
+        updateMainPageLocation(detectedState, lat, lng);
+      }
+    }
+
+    // Update main page location display
+    function updateMainPageLocation(state, lat, lng) {
+      const locationElement = document.getElementById('userLocation');
+      if (locationElement) {
+        // Get city name based on coordinates
+        let cityName = 'Unknown City';
+        if (state === 'Maharashtra') {
+          if (lat >= 18.9 && lat <= 19.1 && lng >= 72.8 && lng <= 73.0) cityName = 'Mumbai';
+          else if (lat >= 18.5 && lat <= 18.6 && lng >= 73.8 && lng <= 73.9) cityName = 'Pune';
+          else cityName = 'Maharashtra';
+        } else if (state === 'Delhi') {
+          cityName = 'Delhi';
+        } else if (state === 'Uttar Pradesh') {
+          if (lat >= 25.3 && lat <= 25.5 && lng >= 82.9 && lng <= 83.0) cityName = 'Varanasi';
+          else if (lat >= 26.8 && lat <= 26.9 && lng >= 80.9 && lng <= 81.0) cityName = 'Lucknow';
+          else cityName = 'Uttar Pradesh';
+        } else if (state === 'Rajasthan') {
+          if (lat >= 26.9 && lat <= 27.0 && lng >= 75.7 && lng <= 75.8) cityName = 'Jaipur';
+          else if (lat >= 26.2 && lat <= 26.3 && lng >= 73.0 && lng <= 73.1) cityName = 'Jodhpur';
+          else cityName = 'Rajasthan';
+        } else {
+          cityName = state;
+        }
+        
+        locationElement.textContent = `${cityName}, ${state}`;
+      }
+    }
+
+    // Incident Reporting System - moved outside DOMContentLoaded
+    window.reportedIncidents = JSON.parse(localStorage.getItem('bon_voyage_incidents') || '[]');
+    window.incidentMarkers = [];
+
+    // Get current location for incident reporting
+    window.getCurrentLocationForIncident = function() {
+      if (!navigator.geolocation) {
+        alert('Geolocation not supported on this device.');
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          // Update form with coordinates (hidden field could be added)
+          console.log('Current location for incident:', lat, lng);
+          alert(`Location captured: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+        },
+        function(error) {
+          console.error('Geolocation error:', error);
+          alert('Unable to get current location. Please try again.');
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    }
+
+    // Report incident function
+    window.reportIncident = function() {
+      const type = document.getElementById('incidentType').value;
+      const severity = document.getElementById('incidentSeverity').value;
+      const description = document.getElementById('incidentDescription').value;
+      
+      if (!type || !severity || !description.trim()) {
+        alert('Please fill in all fields before reporting an incident.');
+        return;
+      }
+      
+      // Get current location
+      if (!navigator.geolocation) {
+        alert('Geolocation not supported. Cannot report incident without location.');
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          // Create incident object
+          const incident = {
+            id: Date.now().toString(),
+            type: type,
+            severity: severity,
+            description: description,
+            location: {
+              lat: lat,
+              lng: lng
+            },
+            timestamp: new Date().toISOString(),
+            status: 'reported'
+          };
+          
+          // Add to incidents array
+          window.reportedIncidents.push(incident);
+          localStorage.setItem('bon_voyage_incidents', JSON.stringify(window.reportedIncidents));
+          
+          // Add marker to map
+          window.addIncidentMarker(incident);
+          
+          // Update incidents list
+          window.renderIncidentsList();
+          
+          // Clear form
+          document.getElementById('incidentType').value = '';
+          document.getElementById('incidentSeverity').value = '';
+          document.getElementById('incidentDescription').value = '';
+          
+          // Generate AI summary
+          window.generateAISummary(incident);
+          
+          alert('Incident reported successfully!');
+        },
+        function(error) {
+          console.error('Geolocation error:', error);
+          alert('Unable to get current location. Cannot report incident.');
+        }
+      );
+    }
+
+    // Add incident marker to map
+    window.addIncidentMarker = function(incident) {
+      if (!window._leaflet_map) return;
+      
+      const severityColors = {
+        low: '#10b981',
+        medium: '#f59e0b',
+        high: '#ef4444',
+        critical: '#dc2626'
+      };
+      
+      const severityIcons = {
+        low: 'fa-info-circle',
+        medium: 'fa-exclamation-triangle',
+        high: 'fa-exclamation-circle',
+        critical: 'fa-skull-crossbones'
+      };
+      
+      const marker = L.marker([incident.location.lat, incident.location.lng], {
+        icon: L.divIcon({
+          className: 'incident-marker',
+          html: `<div style="background: ${severityColors[incident.severity]}; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);"><i class="fas ${severityIcons[incident.severity]}"></i></div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        })
+      }).addTo(window._leaflet_map);
+      
+      // Add popup with incident details
+      const popupContent = `
+        <div style="text-align: left; min-width: 200px;">
+          <div style="font-weight: 600; color: #1f2937; margin-bottom: 8px;">
+            <i class="fas ${severityIcons[incident.severity]}" style="color: ${severityColors[incident.severity]}; margin-right: 6px;"></i>
+            ${incident.type.replace('_', ' ').toUpperCase()}
+          </div>
+          <div style="background: ${severityColors[incident.severity]}20; color: ${severityColors[incident.severity]}; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-bottom: 8px; display: inline-block;">
+            ${incident.severity.toUpperCase()}
+          </div>
+          <div style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">
+            ${incident.description}
+          </div>
+          <div style="color: #9ca3af; font-size: 12px;">
+            <i class="fas fa-clock" style="margin-right: 4px;"></i>
+            ${new Date(incident.timestamp).toLocaleString()}
+          </div>
+        </div>
+      `;
+      
+      marker.bindPopup(popupContent);
+      window.incidentMarkers.push(marker);
+    }
+
+    // Render incidents list
+    window.renderIncidentsList = function() {
+      const incidentsList = document.getElementById('incidentsList');
+      if (!incidentsList) return;
+      
+      if (window.reportedIncidents.length === 0) {
+        incidentsList.innerHTML = `
+          <div style="text-align: center; padding: 20px; color: #9ca3af;">
+            <i class="fas fa-shield-alt" style="font-size: 24px; margin-bottom: 8px;"></i>
+            <p>No incidents reported yet</p>
+          </div>
+        `;
+        return;
+      }
+      
+      incidentsList.innerHTML = window.reportedIncidents.map(incident => `
+        <div class="incident-item">
+          <div class="incident-header">
+            <div class="incident-type">${incident.type.replace('_', ' ').toUpperCase()}</div>
+            <div class="incident-severity severity-${incident.severity}">${incident.severity.toUpperCase()}</div>
+          </div>
+          <div class="incident-description">${incident.description}</div>
+          <div class="incident-meta">
+            <div class="incident-location">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>${incident.location.lat.toFixed(4)}, ${incident.location.lng.toFixed(4)}</span>
+            </div>
+            <div>
+              <i class="fas fa-clock"></i>
+              <span>${new Date(incident.timestamp).toLocaleString()}</span>
+            </div>
+          </div>
+          <div class="ai-summary" id="ai-summary-${incident.id}">
+            <div class="ai-summary-header">
+              <i class="fas fa-robot"></i>
+              <span>AI Safety Analysis</span>
+            </div>
+            <div class="ai-summary-text" id="ai-text-${incident.id}">
+              Analyzing incident data...
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Generate AI summary for incident
+    window.generateAISummary = function(incident) {
+      // Simulate AI analysis delay
+      setTimeout(() => {
+        const summaryText = window.generateMockAISummary(incident);
+        const summaryElement = document.getElementById(`ai-text-${incident.id}`);
+        if (summaryElement) {
+          summaryElement.textContent = summaryText;
+        }
+      }, 2000);
+    }
+
+    // Mock AI summary generation
+    window.generateMockAISummary = function(incident) {
+      const summaries = {
+        theft: {
+          low: "Low risk area. Occasional petty theft reported. Keep valuables secure and stay alert in crowded areas.",
+          medium: "Moderate theft risk. Multiple incidents reported recently. Avoid displaying expensive items and use secure bags.",
+          high: "High theft risk area. Frequent incidents reported. Exercise extreme caution, avoid carrying valuables, and stay in well-lit areas.",
+          critical: "Critical theft risk. Multiple serious incidents reported. Avoid this area entirely if possible. If necessary, travel in groups and avoid carrying any valuables."
+        },
+        harassment: {
+          low: "Minimal harassment reports. Standard safety precautions recommended.",
+          medium: "Some harassment incidents reported. Avoid isolated areas and travel with companions when possible.",
+          high: "Significant harassment risk. Multiple incidents reported. Avoid this area, especially at night, and always travel with others.",
+          critical: "Critical harassment risk. Frequent serious incidents. Avoid this area completely and report to authorities immediately if harassment occurs."
+        },
+        scam: {
+          low: "Low scam activity. Be cautious with unofficial vendors and always verify prices.",
+          medium: "Moderate scam risk. Multiple fraud incidents reported. Verify all transactions and avoid unofficial guides.",
+          high: "High scam risk area. Frequent fraud incidents. Be extremely cautious with all transactions and avoid unofficial services.",
+          critical: "Critical scam risk. Widespread fraud activity. Avoid all unofficial services and verify all transactions with official sources."
+        },
+        unsafe_area: {
+          low: "Generally safe area with minor safety concerns. Standard precautions recommended.",
+          medium: "Some safety concerns reported. Avoid isolated areas and stay alert to surroundings.",
+          high: "Significant safety concerns. Multiple incidents reported. Avoid this area, especially at night.",
+          critical: "Critical safety risk. Multiple serious incidents. Avoid this area entirely and report any suspicious activity."
+        },
+        transport_issue: {
+          low: "Minor transport issues reported. Allow extra time for travel.",
+          medium: "Some transport reliability issues. Have backup transport options ready.",
+          high: "Significant transport problems. Multiple incidents reported. Plan alternative routes and transport methods.",
+          critical: "Critical transport issues. Frequent breakdowns and safety concerns. Avoid this transport route entirely."
+        },
+        medical_emergency: {
+          low: "Basic medical facilities available. Standard health precautions recommended.",
+          medium: "Limited medical facilities. Ensure you have basic first aid and know nearest hospital locations.",
+          high: "Inadequate medical facilities. Multiple health incidents reported. Avoid this area if you have health concerns.",
+          critical: "Critical medical emergency risk. No reliable medical facilities. Avoid this area entirely if you have any health conditions."
+        },
+        other: {
+          low: "Minor safety concerns reported. Standard precautions recommended.",
+          medium: "Some safety issues reported. Exercise caution and stay alert.",
+          high: "Significant safety concerns. Multiple incidents reported. Avoid this area if possible.",
+          critical: "Critical safety risk. Multiple serious incidents. Avoid this area entirely."
+        }
+      };
+      
+      return summaries[incident.type]?.[incident.severity] || "Safety analysis completed. Exercise appropriate caution based on incident severity.";
+    }
+
+    // Load existing incidents on map initialization
+    window.loadIncidentMarkers = function() {
+      window.reportedIncidents.forEach(incident => {
+        window.addIncidentMarker(incident);
+      });
+    }
+
+    // Map initialization is now handled by script.js
+    // Incident markers will be loaded by script.js
+
+    // State Chat System
+    window.currentChatState = null;
+    window.chatMessages = [];
+    window.onlineUsers = [];
+    window.messageCount = 0;
+
+    // State information and descriptions
+    const stateInfo = {
+      'Maharashtra': {
+        flag: '🏛️',
+        description: 'Gateway of India, Bollywood, and vibrant culture',
+        chatRoom: 'maharashtra_travelers'
+      },
+      'Delhi': {
+        flag: '🏛️',
+        description: 'Capital city with rich history and modern vibes',
+        chatRoom: 'delhi_travelers'
+      },
+      'Uttar Pradesh': {
+        flag: '🏛️',
+        description: 'Land of Taj Mahal and spiritual heritage',
+        chatRoom: 'up_travelers'
+      },
+      'Rajasthan': {
+        flag: '🏰',
+        description: 'Royal palaces, deserts, and colorful traditions',
+        chatRoom: 'rajasthan_travelers'
+      },
+      'Karnataka': {
+        flag: '🏛️',
+        description: 'Tech hub with ancient temples and coffee culture',
+        chatRoom: 'karnataka_travelers'
+      },
+      'Tamil Nadu': {
+        flag: '🏛️',
+        description: 'Temples, beaches, and classical arts',
+        chatRoom: 'tamilnadu_travelers'
+      },
+      'Kerala': {
+        flag: '🌴',
+        description: 'Backwaters, beaches, and spice gardens',
+        chatRoom: 'kerala_travelers'
+      },
+      'Punjab': {
+        flag: '🌾',
+        description: 'Golden Temple, vibrant festivals, and warm hospitality',
+        chatRoom: 'punjab_travelers'
+      },
+      'West Bengal': {
+        flag: '🏛️',
+        description: 'Cultural capital with literature and arts',
+        chatRoom: 'westbengal_travelers'
+      },
+      'Gujarat': {
+        flag: '🏛️',
+        description: 'Business hub with diverse culture and heritage',
+        chatRoom: 'gujarat_travelers'
+      },
+      'India': {
+        flag: '🇮🇳',
+        description: 'General travelers community',
+        chatRoom: 'india_travelers'
+      }
+    };
+
+    // Mock chat data for different states
+    const mockChatData = {
+      'Maharashtra': [
+        { sender: 'Priya M', message: 'Anyone visiting Gateway of India today?', time: '2 min ago', avatar: 'PM' },
+        { sender: 'Raj K', message: 'Best street food in Mumbai?', time: '5 min ago', avatar: 'RK' },
+        { sender: 'Sneha P', message: 'Marine Drive sunset is amazing! 🌅', time: '8 min ago', avatar: 'SP' }
+      ],
+      'Delhi': [
+        { sender: 'Amit S', message: 'Red Fort is crowded today', time: '1 min ago', avatar: 'AS' },
+        { sender: 'Kavya R', message: 'Where to find authentic Delhi chaat?', time: '4 min ago', avatar: 'KR' },
+        { sender: 'Vikram D', message: 'Connaught Place has great shopping', time: '7 min ago', avatar: 'VD' }
+      ],
+      'Uttar Pradesh': [
+        { sender: 'Anjali G', message: 'Taj Mahal at sunrise is magical ✨', time: '3 min ago', avatar: 'AG' },
+        { sender: 'Rohit M', message: 'Varanasi ghats are so peaceful', time: '6 min ago', avatar: 'RM' },
+        { sender: 'Pooja S', message: 'Best time to visit Agra?', time: '9 min ago', avatar: 'PS' }
+      ],
+      'Rajasthan': [
+        { sender: 'Arjun J', message: 'Jaipur palace tour was incredible!', time: '2 min ago', avatar: 'AJ' },
+        { sender: 'Meera L', message: 'Desert safari in Jaisalmer tomorrow', time: '5 min ago', avatar: 'ML' },
+        { sender: 'Karan P', message: 'Udaipur lakes are beautiful', time: '8 min ago', avatar: 'KP' }
+      ],
+      'Karnataka': [
+        { sender: 'Deepa N', message: 'Bangalore weather is perfect today', time: '1 min ago', avatar: 'DN' },
+        { sender: 'Suresh K', message: 'Mysore palace is a must visit', time: '4 min ago', avatar: 'SK' },
+        { sender: 'Lakshmi R', message: 'Coffee plantations in Coorg are amazing', time: '7 min ago', avatar: 'LR' }
+      ]
+    };
+
+    // Open state chat function
+    window.openStateChat = function() {
+      // Detect current state
+      if (window.userCurrentState) {
+        window.currentChatState = window.userCurrentState;
+      } else {
+        // Fallback to detecting from location
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function(position) {
+              const detectedState = detectStateFromCoordinates(position.coords.latitude, position.coords.longitude);
+              window.currentChatState = detectedState;
+              initializeStateChat();
+            },
+            function(error) {
+              window.currentChatState = 'India'; // Default fallback
+              initializeStateChat();
+            }
+          );
+        } else {
+          window.currentChatState = 'India';
+          initializeStateChat();
+        }
+      }
+      
+      if (window.currentChatState) {
+        initializeStateChat();
+      }
+      
+      switchScreen('stateChat');
+    };
+
+    // Initialize state chat
+    function initializeStateChat() {
+      const state = window.currentChatState;
+      const info = stateInfo[state] || stateInfo['India'];
+      
+      // Update UI elements
+      document.getElementById('chatStateTitle').textContent = `${state} Chat`;
+      document.getElementById('currentStateName').textContent = state;
+      document.getElementById('stateDescription').textContent = info.description;
+      document.getElementById('stateFlag').textContent = info.flag;
+      
+      // Update online count (mock data)
+      const onlineCount = Math.floor(Math.random() * 50) + 10;
+      document.getElementById('onlineCount').textContent = onlineCount;
+      
+      // Load chat messages
+      loadChatMessages(state);
+      
+      // Set up chat input
+      setupChatInput();
+    }
+
+    // Load chat messages for the state
+    function loadChatMessages(state) {
+      const chatMessages = document.getElementById('chatMessages');
+      const messages = mockChatData[state] || [];
+      
+      // Clear welcome message
+      chatMessages.innerHTML = '';
+      
+      // Add mock messages
+      messages.forEach(msg => {
+        addMessageToChat(msg.sender, msg.message, msg.time, msg.avatar, false);
+      });
+      
+      // Update message count
+      window.messageCount = messages.length;
+      document.getElementById('messageCount').textContent = window.messageCount;
+    }
+
+    // Add message to chat
+    function addMessageToChat(sender, message, time, avatar, isOwn = false) {
+      const chatMessages = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isOwn ? 'own' : ''}`;
+      
+      messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+          <div class="message-header">
+            <span class="message-sender">${sender}</span>
+            <span class="message-time">${time}</span>
+          </div>
+          <div class="message-text">${message}</div>
+        </div>
+      `;
+      
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Setup chat input functionality
+    function setupChatInput() {
+      const chatInput = document.getElementById('chatInput');
+      const sendBtn = document.getElementById('sendBtn');
+      
+      // Send message on Enter key
+      chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      
+      // Enable/disable send button based on input
+      chatInput.addEventListener('input', function() {
+        sendBtn.disabled = !this.value.trim();
+      });
+    }
+
+    // Send message function
+    window.sendMessage = function() {
+      const chatInput = document.getElementById('chatInput');
+      const message = chatInput.value.trim();
+      
+      if (!message) return;
+      
+      // Get current user name
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const userName = currentUser.name || 'You';
+      const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+      
+      // Add message to chat
+      addMessageToChat(userName, message, 'now', userInitials, true);
+      
+      // Clear input
+      chatInput.value = '';
+      document.getElementById('sendBtn').disabled = true;
+      
+      // Update message count
+      window.messageCount++;
+      document.getElementById('messageCount').textContent = window.messageCount;
+      
+      // Simulate other users responding (mock)
+      setTimeout(() => {
+        simulateOtherUserResponse();
+      }, 2000 + Math.random() * 3000);
+    };
+
+    // Simulate other user responses
+    function simulateOtherUserResponse() {
+      const responses = [
+        { name: 'Traveler', message: 'That sounds amazing! 😊', avatar: 'T' },
+        { name: 'Explorer', message: 'I was there last week!', avatar: 'E' },
+        { name: 'Wanderer', message: 'Great tip, thanks for sharing!', avatar: 'W' },
+        { name: 'Adventurer', message: 'Anyone else planning to visit?', avatar: 'A' },
+        { name: 'Nomad', message: 'Love this place! 🌟', avatar: 'N' }
+      ];
+      
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      addMessageToChat(response.name, response.message, 'now', response.avatar, false);
+      
+      // Update message count
+      window.messageCount++;
+      document.getElementById('messageCount').textContent = window.messageCount;
+    }
+
+    // Share location in chat
+    window.shareLocation = function() {
+      if (!navigator.geolocation) {
+        alert('Geolocation not supported.');
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          const lat = position.coords.latitude.toFixed(4);
+          const lng = position.coords.longitude.toFixed(4);
+          const locationMessage = `📍 My location: ${lat}, ${lng}`;
+          
+          // Get current user name
+          const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+          const userName = currentUser.name || 'You';
+          const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+          
+          addMessageToChat(userName, locationMessage, 'now', userInitials, true);
+          
+          // Update message count
+          window.messageCount++;
+          document.getElementById('messageCount').textContent = window.messageCount;
+        },
+        function(error) {
+          alert('Unable to get current location.');
+        }
+      );
+    };
+
+    // Share photo in chat (mock)
+    window.sharePhoto = function() {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const userName = currentUser.name || 'You';
+      const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+      
+      const photoMessage = '📸 Shared a photo';
+      addMessageToChat(userName, photoMessage, 'now', userInitials, true);
+      
+      // Update message count
+      window.messageCount++;
+      document.getElementById('messageCount').textContent = window.messageCount;
+    };
+
+    // Refresh chat
+    window.refreshChat = function() {
+      if (window.currentChatState) {
+        loadChatMessages(window.currentChatState);
+        alert('Chat refreshed!');
+      }
+    };
+
+    // Debug: Log function availability
+    console.log('🔍 Exporting functions to global scope...');
+    
+    // Export functions for global access
+    window.switchScreen = switchScreen;
+    window.openEmergencyContacts = openEmergencyContacts;
+    window.closeEmergencyModal = closeEmergencyModal;
+    window.callEmergency = callEmergency;
+    window.logout = logout;
+    window.renderAlertsFeed = renderAlertsFeed;
+    window.renderCountryInfo = renderCountryInfo;
+    window.openDigitalID = openDigitalID;
+    window.openSafetyScore = openSafetyScore;
+    window.openEmergency = openEmergency;
+    window.shareLocation = shareLocation;
+    window.toggleTracking = toggleTracking;
+    window.openSafetyDetailPanel = openSafetyDetailPanel;
+    window.closeSafetyDetailPanel = closeSafetyDetailPanel;
+    window.openTravelIdModal = openTravelIdModal;
+    window.closeTravelIdModal = closeTravelIdModal;
+    window.generateTravelID = generateTravelID;
+    window.clearTravelID = clearTravelID;
+    window.copyToClipboard = copyToClipboard;
+    window.openAttractions = openAttractions;
+    window.openRestaurants = openRestaurants;
+    window.openTransport = openTransport;
+    window.openCulture = openCulture;
+    window.openRecommendations = openRecommendations;
+    window.refreshGuide = refreshGuide;
+
+    // Language switching functionality
+    let currentLanguage = localStorage.getItem('bv_language') || 'en';
+    
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'hi' : 'en';
+      localStorage.setItem('bv_language', currentLanguage);
+      updateLanguage();
+    }
+    
+    function updateLanguage() {
+      const elements = document.querySelectorAll('[data-en][data-hi]');
+      const currentLangSpan = document.getElementById('currentLanguage');
+      
+      elements.forEach(element => {
+        if (currentLanguage === 'hi') {
+          element.textContent = element.getAttribute('data-hi');
+        } else {
+          element.textContent = element.getAttribute('data-en');
+        }
+      });
+      
+      // Update current language display
+      if (currentLangSpan) {
+        currentLangSpan.textContent = currentLanguage === 'hi' ? 'हिंदी' : 'English';
+      }
+      
+      // Update document direction for Hindi
+      if (currentLanguage === 'hi') {
+        document.documentElement.setAttribute('dir', 'ltr'); // Keep LTR for better UI
+        document.documentElement.setAttribute('lang', 'hi');
+      } else {
+        document.documentElement.setAttribute('dir', 'ltr');
+        document.documentElement.setAttribute('lang', 'en');
+      }
+      
+      // Update user greeting with current user name
+      const userGreeting = document.getElementById('userGreeting');
+      if (userGreeting) {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const userName = currentUser.name || 'Sandra';
+        if (currentLanguage === 'hi') {
+          userGreeting.textContent = `नमस्ते! स्वागत है, ${userName}`;
+        } else {
+          userGreeting.textContent = `Namaste! Welcome, ${userName}`;
+        }
+      }
+    }
+    
+    // Initialize language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateLanguage();
+    });
+    
+    // Global exposure for language functions
+    window.toggleLanguage = toggleLanguage;
+  </script>
+</body>
+</html>
